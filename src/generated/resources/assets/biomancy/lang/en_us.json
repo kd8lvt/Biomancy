@@ -64,6 +64,8 @@
 	"item.biomancy.living_flesh.tooltip": "It's alive!\nBut it looks too dumb to be the brain of a mob. You should turn it into a construct.",
 	"item.biomancy.primordial_core": "Primordial Core",
 	"item.biomancy.primordial_core.tooltip": "A ominous artifact made of flesh. It makes you feel uneasy...",
+	"item.biomancy.morphball": "Morphball",
+	"item.biomancy.morphball.tooltip": "A thin, nutrient-fed fleshkin to be worn on the chest. It has the ability to compress the wearer into a small ball without causing harm.",
 	"item.biomancy.guide_book": "[WIP] Primordial Index",
 	"item.biomancy.guide_book.tooltip": "[WIP] Ask questions?",
 	"item.biomancy.creator_mix": "Exotic Flesh Mix",

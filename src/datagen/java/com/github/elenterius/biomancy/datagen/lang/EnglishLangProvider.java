@@ -368,6 +368,8 @@ public class EnglishLangProvider extends AbstractLangProvider {
 		addItem(ModItems.VIAL, "Organic Vial", "A small organic container with very high alchemical resistance, perfect for holding reactive substances.\nThe vial dissolves on use.");
 		addItem(ModItems.LIVING_FLESH, "Living Flesh", "It's alive!\nBut it looks too dumb to be the brain of a mob. You should turn it into a construct.");
 		addItem(ModItems.PRIMORDIAL_CORE, "Primordial Core", "A ominous artifact made of flesh. It makes you feel uneasy...");
+		addItem(ModItems.MORPHBALL_ITEM,"Morphball","A thin, nutrient-fed fleshkin to be worn on the chest. It has the ability to compress the wearer into a small ball without causing harm.");
+
 		//		addItem(ModItems.PRIMORDIAL_LIVING_OCULUS, "Primordial Oculus", "A ominous eye is gazing at you...");
 		addItem(ModItems.GUIDE_BOOK, "[WIP] Primordial Index", "[WIP] Ask questions?");
 		addItem(ModItems.CREATOR_MIX, "Exotic Flesh Mix", "A meal made for the cradle... just not for you.");
