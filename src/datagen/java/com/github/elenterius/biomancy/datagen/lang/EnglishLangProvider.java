@@ -353,6 +353,9 @@ public class EnglishLangProvider extends AbstractLangProvider {
 		addEffect(ModMobEffects.ESSENCE_ANEMIA, "[PH] Essence Anemia");
 		addEffect(ModMobEffects.DROWSY, "Drowsy");
 		addEffect(ModMobEffects.DESPOIL, "Despoil");
+		addEffect(ModMobEffects.ESSENCE_AMENIA,"Essence Amenia");
+		addEffect(ModMobEffects.ADRENALINE_RUSH,"Adrenaline Rush");
+		addEffect(ModMobEffects.ADRENAL_FATIGUE,"Adrenal Fatigue");
 	}
 
 	private void addEnchantmentTranslations() {
