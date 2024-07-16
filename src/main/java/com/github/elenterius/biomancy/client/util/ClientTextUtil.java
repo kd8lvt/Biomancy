@@ -10,6 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -35,11 +36,6 @@ public final class ClientTextUtil {
 
 	private ClientTextUtil() {}
 
-	@Deprecated
-	public static void appendItemInfoTooltip(Item item, List<Component> tooltip) {
-		tooltip.add(getItemInfoTooltip(item));
-	}
-
 	private static MutableComponent getItemTooltip(ItemStack stack) {
 		Item item = stack.getItem();
 
@@ -50,13 +46,12 @@ public final class ClientTextUtil {
 		return TextComponentUtil.getItemTooltip(item);
 	}
 
-	public static MutableComponent getItemInfoTooltip(ItemStack stack) {
-		return Screen.hasControlDown() ? getItemTooltip(stack).withStyle(TextStyles.LORE) : pressButtonTo(CTRL_KEY_TEXT.plainCopy(), SHOW_INFO).withStyle(TextStyles.LORE);
-	}
+	public static List<Component> getItemInfoTooltip(ItemStack stack) {
+		if (Screen.hasControlDown()) {
+			return splitLinesByNewLine(getItemTooltip(stack).withStyle(TextStyles.LORE));
+		}
 
-	@Deprecated
-	public static MutableComponent getItemInfoTooltip(Item item) {
-		return Screen.hasControlDown() ? TextComponentUtil.getItemTooltip(item).withStyle(TextStyles.LORE) : pressButtonTo(CTRL_KEY_TEXT.plainCopy(), SHOW_INFO).withStyle(TextStyles.LORE);
+		return List.of(pressButtonTo(CTRL_KEY_TEXT.plainCopy(), SHOW_INFO).withStyle(TextStyles.LORE));
 	}
 
 	public static boolean showExtraInfo(List<Component> tooltip) {
@@ -97,6 +92,30 @@ public final class ClientTextUtil {
 			}
 		}
 		return uuid.toString();
+	}
+
+	public static List<Component> splitLinesByNewLine(Component component) {
+		Locale locale = Minecraft.getInstance().getLocale();
+		String text = component.getString();
+		Style style = component.getStyle();
+		return ComponentUtil.splitLines(locale, text, style);
+	}
+
+	public static List<Component> splitLinesByNewLine(String text, Style style) {
+		Locale locale = Minecraft.getInstance().getLocale();
+		return ComponentUtil.splitLines(locale, text, style);
+	}
+
+	public static List<Component> splitLines(Component component, int maxLength) {
+		Locale locale = Minecraft.getInstance().getLocale();
+		String text = component.getString();
+		Style style = component.getStyle();
+		return ComponentUtil.splitLines(locale, text, maxLength, style);
+	}
+
+	public static List<Component> splitLines(String text, int maxLength, Style style) {
+		Locale locale = Minecraft.getInstance().getLocale();
+		return ComponentUtil.splitLines(locale, text, maxLength, style);
 	}
 
 	public static String format(String format, Object... objects) {

@@ -1,6 +1,7 @@
 package com.github.elenterius.biomancy.init.client;
 
 import com.github.elenterius.biomancy.BiomancyMod;
+import com.github.elenterius.biomancy.block.membrane.BiometricMembraneBlock;
 import com.github.elenterius.biomancy.block.vialholder.VialHolderBlock;
 import com.github.elenterius.biomancy.client.gui.IngameOverlays;
 import com.github.elenterius.biomancy.client.gui.tooltip.EmptyLineClientComponent;
@@ -25,6 +26,7 @@ import com.github.elenterius.biomancy.client.render.entity.projectile.acidblob.A
 import com.github.elenterius.biomancy.client.render.entity.projectile.bloomberry.BloomberryProjectileRenderer;
 import com.github.elenterius.biomancy.init.*;
 import com.github.elenterius.biomancy.integration.ModsCompatHandler;
+import com.github.elenterius.biomancy.item.weapon.gun.GunbladeItem;
 import com.github.elenterius.biomancy.tooltip.EmptyLineTooltipComponent;
 import com.github.elenterius.biomancy.tooltip.HrTooltipComponent;
 import com.github.elenterius.biomancy.tooltip.StorageSacTooltipComponent;
@@ -34,10 +36,14 @@ import net.minecraft.client.particle.AttackSweepParticle;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
+import net.minecraft.client.renderer.item.ItemProperties;
+import net.minecraft.client.renderer.item.ItemPropertyFunction;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BucketItem;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.*;
 import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -130,7 +136,10 @@ public final class ClientSetupHandler {
 	}
 
 	private static void registerItemModelProperties() {
-		//ItemProperties.register(ModItems.SINGLE_ITEM_BAG_ITEM.get(), new ResourceLocation("fullness"), (stack, clientWorld, livingEntity) -> ModItems.SINGLE_ITEM_BAG_ITEM.get().getFullness(stack));
+		ItemPropertyFunction shieldPropertyFunc = (stack, level, livingEntity, seed) -> livingEntity != null && livingEntity.isUsingItem() && livingEntity.getUseItem() == stack ? 1f : 0f;
+		ItemProperties.register(ModItems.THORN_SHIELD.get(), new ResourceLocation("blocking"), shieldPropertyFunc);
+
+		ItemProperties.register(ModItems.CAUSTIC_GUNBLADE.get(), new ResourceLocation("melee"), (stack, level, livingEntity, seed) -> GunbladeItem.GunbladeMode.from(stack) == GunbladeItem.GunbladeMode.MELEE ? 1f : 0f);
 	}
 
 	@SubscribeEvent
@@ -146,26 +155,21 @@ public final class ClientSetupHandler {
 	@SubscribeEvent
 	public static void onItemColorRegistry(final RegisterColorHandlersEvent.Item event) {
 		event.register((stack, tintIndex) -> ModItems.ESSENCE.get().getColor(stack, tintIndex), ModItems.ESSENCE.get());
-		event.register((stack, tintIndex) -> tintIndex == 1 ? 0xFF_09DF5B : 0xFF_FFFFFF, ModBlocks.BABY_PERMEABLE_MEMBRANE.get());
-		event.register((stack, tintIndex) -> tintIndex == 1 ? 0xFF_ACBF60 : 0xFF_FFFFFF, ModBlocks.ADULT_PERMEABLE_MEMBRANE.get());
-		event.register((stack, tintIndex) -> tintIndex == 1 ? 0xFF_F740FD : 0xFF_FFFFFF, ModBlocks.PRIMAL_PERMEABLE_MEMBRANE.get());
 		event.register((stack, index) -> index == 1 ? IClientFluidTypeExtensions.of(((BucketItem) stack.getItem()).getFluid()).getTintColor() : 0xFF_FFFFFF, ModItems.ACID_BUCKET.get());
+		event.register(BiometricMembraneBlock::getTintColor, ModItems.BIOMETRIC_MEMBRANE.get());
 	}
 
 	@SubscribeEvent
 	public static void onBlockColorRegistry(final RegisterColorHandlersEvent.Block event) {
 		event.register(VialHolderBlock::getTintColor, ModBlocks.VIAL_HOLDER.get());
-		event.register((state, level, pos, tintIndex) -> tintIndex == 1 ? 0xFF_09DF5B : 0xFF_FFFFFF, ModBlocks.BABY_PERMEABLE_MEMBRANE.get());
-		event.register((state, level, pos, tintIndex) -> tintIndex == 1 ? 0xFF_ACBF60 : 0xFF_FFFFFF, ModBlocks.ADULT_PERMEABLE_MEMBRANE.get());
-		event.register((state, level, pos, tintIndex) -> tintIndex == 1 ? 0xFF_F740FD : 0xFF_FFFFFF, ModBlocks.PRIMAL_PERMEABLE_MEMBRANE.get());
+		event.register(BiometricMembraneBlock::getTintColor, ModBlocks.BIOMETRIC_MEMBRANE.get());
 	}
 
 	@SubscribeEvent
 	public static void registerGameOverlays(RegisterGuiOverlaysEvent event) {
-		//		event.registerAboveAll("biomancy_gun", IngameOverlays.GUN_OVERLAY);
-		event.registerAboveAll("biomancy_injector", IngameOverlays.INJECTOR_OVERLAY);
-		event.registerAboveAll("biomancy_charge_bar", IngameOverlays.CHARGE_BAR_OVERLAY);
-		event.registerAboveAll("biomancy_attack_reach", IngameOverlays.ATTACK_REACH_OVERLAY);
+		event.registerAbove(VanillaGuiOverlay.CROSSHAIR.id(), "injector", IngameOverlays.INJECTOR_OVERLAY);
+		event.registerAbove(VanillaGuiOverlay.CROSSHAIR.id(), "charge_bar", IngameOverlays.CHARGE_BAR_OVERLAY);
+		event.registerAbove(VanillaGuiOverlay.CROSSHAIR.id(), "gun", IngameOverlays.GUN_OVERLAY);
 	}
 
 	@SubscribeEvent

@@ -3,8 +3,13 @@ package com.github.elenterius.biomancy.statuseffect;
 import com.github.elenterius.biomancy.BiomancyMod;
 import com.github.elenterius.biomancy.init.ModMobEffects;
 import com.github.elenterius.biomancy.init.tags.ModItemTags;
+import com.github.elenterius.biomancy.init.tags.ModMobEffectTags;
+import com.github.elenterius.biomancy.item.armor.AcolyteArmorItem;
 import com.github.elenterius.biomancy.serum.AdrenalineSerum;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
@@ -19,6 +24,14 @@ import javax.annotation.Nullable;
 public final class StatusEffectHandler {
 
 	private StatusEffectHandler() {}
+
+	@SubscribeEvent
+	public static void onEffectRemoval(final MobEffectEvent.Remove event) {
+		if (event.getEntity().level().isClientSide) return;
+		if (event.getEffect() == ModMobEffects.ESSENCE_ANEMIA.get() && ModMobEffectTags.isNotRemovableWithCleansingSerum(ModMobEffects.ESSENCE_ANEMIA.get())) {
+			event.setCanceled(true);
+		}
+	}
 
 	@SubscribeEvent
 	public static void onEffectExpiry(final MobEffectEvent.Expired event) {
@@ -70,6 +83,35 @@ public final class StatusEffectHandler {
 		// LivingEntity.addEffect() & EffectInstance.update() can only upgrade (duration/amplifier) effects
 		livingEntity.removeEffect(newMobEffectInstance.getEffect());
 		livingEntity.addEffect(newMobEffectInstance);
+	}
+
+	public static boolean canApplySplashEffectIfAllowed(MobEffect effect, LivingEntity target) {
+		MobEffectCategory category = effect.getCategory();
+
+		if (target.isInvertedHealAndHarm()) {
+			if (effect == MobEffects.HEAL) {
+				category = MobEffectCategory.HARMFUL;
+			}
+			else if (effect == MobEffects.HARM) {
+				category = MobEffectCategory.BENEFICIAL;
+			}
+		}
+
+		if (category == MobEffectCategory.HARMFUL) {
+			int resistProbability = 0;
+
+			for (ItemStack itemStack : target.getArmorSlots()) {
+				if (itemStack.getItem() instanceof AcolyteArmorItem armor && armor.hasNutrients(itemStack)) {
+					resistProbability += 15;
+				}
+			}
+
+			if (resistProbability > 0) {
+				return target.getRandom().nextInt(100) >= resistProbability;
+			}
+		}
+
+		return true;
 	}
 
 }

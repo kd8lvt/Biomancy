@@ -1,6 +1,7 @@
 package com.github.elenterius.biomancy.datagen.lang;
 
 import com.github.elenterius.biomancy.BiomancyMod;
+import com.github.elenterius.biomancy.api.livingtool.LivingToolState;
 import com.github.elenterius.biomancy.api.serum.Serum;
 import com.github.elenterius.biomancy.client.util.ClientTextUtil;
 import com.github.elenterius.biomancy.init.*;
@@ -8,7 +9,6 @@ import com.github.elenterius.biomancy.init.client.ClientSetupHandler;
 import com.github.elenterius.biomancy.item.ItemTooltipStyleProvider;
 import com.github.elenterius.biomancy.item.MaykerBannerPatternItem;
 import com.github.elenterius.biomancy.item.SerumItem;
-import com.github.elenterius.biomancy.item.livingtool.LivingToolState;
 import com.github.elenterius.biomancy.menu.BioForgeTab;
 import com.github.elenterius.biomancy.styles.TextComponentUtil;
 import net.minecraft.data.CachedOutput;
@@ -16,6 +16,7 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.registries.RegistryObject;
@@ -108,6 +109,10 @@ public class EnglishLangProvider extends AbstractLangProvider {
 		add("tooltip.biomancy." + id, text);
 	}
 
+	private void addAbility(String id, String text) {
+		add("ability.biomancy." + id, text);
+	}
+
 	private <T extends Item> void addItem(Supplier<T> supplier, String name, String tooltip) {
 		T item = supplier.get();
 		add(item.getDescriptionId(), name);
@@ -178,6 +183,7 @@ public class EnglishLangProvider extends AbstractLangProvider {
 		addFluidTranslations();
 		addEntityTranslations();
 		addEnchantmentTranslations();
+		addPotionTranslations();
 		addStatusEffectTranslations();
 		addSerumTranslations();
 		addDamageTranslations();
@@ -190,8 +196,8 @@ public class EnglishLangProvider extends AbstractLangProvider {
 		addTooltip("consumption", "Consumption");
 		addTooltip("bile_fuel", "Bile");
 		addTooltip("blood_charge", "Blood Charge");
-		addTooltip("contains_unique_dna", "[PH] Contains Unique Genetic Sequences");
-		addTooltip("press_button_to", "Press %1$s to %2$s");
+		addTooltip("contains_unique_dna", "Contains Unique Genetic Sequences");
+		addTooltip("press_button_to", "Hold %1$s to %2$s");
 
 		addTooltip("owner", "Owner: %1$s");
 
@@ -211,20 +217,27 @@ public class EnglishLangProvider extends AbstractLangProvider {
 		addTooltip("action.enable_awakened_mode", "activate Awakened Mode");
 		addTooltip("action.disable_awakened_mode", "cancel Awakened Mode");
 
-		addTooltip("ability.bleed_proc", "Eviscerating Slash");
-		addTooltip("ability.bleed_proc.desc", "When triggered, adds one Bleed Stack (max 2)");
-		addTooltip("ability.blood_explosion", "Blood Explosion");
-		addTooltip("ability.blood_explosion.desc", "On Bleed Stack, deals 10% of max health as damage");
-		addTooltip("ability.shredding_strike", "Shredding Swipe");
-		addTooltip("ability.shredding_strike.desc", "On heavy attack, adds one Armor Shred stack (max 20)");
-		addTooltip("ability.corrosive_proc", "Corrosive Blow");
-		addTooltip("ability.corrosive_proc.desc", "On critical hit, applies Corrosive status effect");
+		addAbility("bleed_proc", "Eviscerating Slash");
+		addAbility("bleed_proc.desc", "When triggered, adds one Bleed Stack (max 2)");
+		addAbility("blood_explosion", "Blood Explosion");
+		addAbility("blood_explosion.desc", "On Bleed Stack, deals 10% of max health as damage");
+		addAbility("acid_coat", "Acid Coat");
+		addAbility("acid_coat.desc", """
+				On Right-Click coats the blade in Acid for 10 seconds.
+				Full-Strength Attacks inflict one stack of Armor Shred for 4s and one stack of Corrosion for 2s.
+				Critical Hits inflict two stacks of Armor Shred for 4s.""");
+		addAbility("thorny_hide", "Thorny Hide");
+		addAbility("thorny_hide.desc", "On successful block, deals thorns damage to the attacker");
+		addAbility("fleshkin_affinity", "Fleshkin Affinity");
+		addAbility("fleshkin_affinity.desc", "-5% Primordial Cradle Hostility");
+		addAbility("bio_alchemical_epidermis", "Bio-Alchemical Epidermis");
+		addAbility("bio_alchemical_epidermis.desc", "+15% Resistance to external application of harmful Status-Effects\n -25% Injection Resistance\n -25% Injection Damage");
 
-		//		addTooltip("fire_rate", "Fire Rate");
-		//		addTooltip("accuracy", "Accuracy");
-		//		addTooltip("ammo", "Ammo");
-		//		addTooltip("reload_time", "Reload Time");
-		//		addTooltip("projectile_damage", "Projectile Damage");
+		addTooltip("fire_rate", "Fire Rate");
+		addTooltip("accuracy", "Accuracy");
+		addTooltip("ammo", "Ammo");
+		addTooltip("reload_time", "Reload Time");
+		addTooltip("projectile_damage", "Projectile Damage");
 
 		add(LivingToolState.getTooltipTranslationKey(), "The Tool is %1$s");
 		add(LivingToolState.BROKEN.getTranslationKey(), "Broken");
@@ -232,10 +245,15 @@ public class EnglishLangProvider extends AbstractLangProvider {
 		add(LivingToolState.AWAKENED.getTranslationKey(), "Awakened");
 
 		addHudMessage("not_sleepy", "You don't feel sleepy...");
-		//		addHudMessage("set_behavior_command", "%1$s will now execute the %2$s command");
-		//		addHudMessage("not_enough_ammo", "Not enough Ammo");
+		//addHudMessage("set_behavior_command", "%1$s will now execute the %2$s command");
+		addHudMessage("not_enough_ammo", "Not enough Ammo");
 		addHudMessage("not_enough_nutrients", "Not enough Nutrients");
 		addHudMessage("not_enough_blood_charge", "Not enough Blood Charge");
+		addHudMessage("mob_too_old", "The Mob is too old");
+		addHudMessage("already_full", "Already Full");
+		addHudMessage("failed_to_store_mob", "Failed to store the mob");
+		addHudMessage("failed_to_spawn_mob", "Failed to spawn the stored mob");
+		addHudMessage("item_interaction_not_allowed", "Item interaction is not allowed");
 
 		add(ClientTextUtil.getCtrlKey(), "ctrl");
 		add(ClientTextUtil.getAltKey(), "alt");
@@ -253,9 +271,6 @@ public class EnglishLangProvider extends AbstractLangProvider {
 		add("jei.biomancy.recipe.decomposer", "Decomposer Recipes");
 		add("jei.biomancy.recipe.digester", "Digester Recipes");
 		add("jei.biomancy.recipe.bio_forge", "Bio-Forge Recipes");
-
-		//		add("jer.biomancy.requiresDespoilOrBoneCleaver", "Requires Despoil Enchantment or Bone Cleaver (#forge:tools/knives)");
-		//		add("jer.biomancy.requiresBoneCleaver", "Requires Bone Cleaver");
 
 		addSoundTranslations();
 		addBannerPatternTranslations();
@@ -287,7 +302,8 @@ public class EnglishLangProvider extends AbstractLangProvider {
 
 		addSound(ModSoundEvents.CLAWS_ATTACK_STRONG, "Strong Claw Attack");
 		addSound(ModSoundEvents.CLAWS_ATTACK_BLEED_PROC, "Eviscerating Slash triggers");
-		addSound(ModSoundEvents.FLESHKIN_NO, "Fleshkin says No");
+		addSound(ModSoundEvents.FLESHKIN_NO, "Fleshkin disagrees");
+		addSound(ModSoundEvents.FLESHKIN_EAT, "Fleshkin eats");
 		addSound(ModSoundEvents.FLESHKIN_BREAK, "Fleshkin Break");
 		addSound(ModSoundEvents.FLESHKIN_BECOME_DORMANT, "Fleshkin becomes Dormant");
 		addSound(ModSoundEvents.FLESHKIN_BECOME_AWAKENED, "Fleshkin becomes Awakened");
@@ -296,10 +312,13 @@ public class EnglishLangProvider extends AbstractLangProvider {
 		addSound(ModSoundEvents.FLESHKIN_CHEST_CLOSE, "Close Fleshy Chest");
 		addSound(ModSoundEvents.FLESHKIN_CHEST_BITE_ATTACK, "Fleshy Chest Bite Attack");
 
-		addSound(ModSoundEvents.CREATOR_SPAWN_MOB, "Primordial Cradle Spawns a Mob");
-		addSound(ModSoundEvents.CREATOR_BECAME_FULL, "Primordial Cradle became full");
-		addSound(ModSoundEvents.CREATOR_EAT, "Primordial Cradle Eating");
-		addSound(ModSoundEvents.CREATOR_NO, "Primordial Cradle says No");
+		addSound(ModSoundEvents.CRADLE_SPAWN_MOB, "Primordial Cradle Spawns a Mob");
+		addSound(ModSoundEvents.CRADLE_SPAWN_PRIMORDIAL_MOB, "Primordial Cradle Spawns a Primal Mob");
+		addSound(ModSoundEvents.CRADLE_BECAME_FULL, "Primordial Cradle became full");
+		addSound(ModSoundEvents.CRADLE_EAT, "Primordial Cradle Eating");
+		addSound(ModSoundEvents.CRADLE_NO, "Primordial Cradle disagrees");
+		addSound(ModSoundEvents.CRADLE_CRAFTING_RANDOM, "Primordial Cradle is summoning");
+		addSound(ModSoundEvents.CRADLE_SPIKE_ATTACK, "Primordial Cradle attacks");
 
 		addSound(ModSoundEvents.UI_STORAGE_SAC_OPEN, "Open Menu of Storage Sac");
 		addSound(ModSoundEvents.UI_BIO_FORGE_OPEN, "Open Menu of Bio-Forge");
@@ -324,20 +343,41 @@ public class EnglishLangProvider extends AbstractLangProvider {
 
 		addSound(ModSoundEvents.FLESH_BLOB_JUMP, "Flesh Blob Jump");
 		addSound(ModSoundEvents.FLESH_BLOB_HURT, "Flesh Blob Hurt");
+		addSound(ModSoundEvents.FLESH_BLOB_DEATH, "Flesh Blob Death");
+		addSound(ModSoundEvents.FLESH_BLOB_AMBIENT, "Flesh Blob Ambient");
+		addSound(ModSoundEvents.FLESH_BLOB_GROWL, "Flesh Blob Growls");
+		addSound(ModSoundEvents.FLESH_BLOB_MEW_PURR, "Flesh Blob Purrs");
 	}
 
 	private void addDamageTranslations() {
 		addDeathMessage(ModDamageTypes.CHEST_BITE, "%1$s tried opening a chest, but was eaten instead");
 		addDeathMessage(ModDamageTypes.PRIMORDIAL_SPIKES, "%1$s was impaled by primordial spikes");
 
-		addDeathMessage(ModDamageTypes.FALL_ON_SPIKE, "%1$s fell on a sharp spike");
-		addDeathMessage(ModDamageTypes.IMPALED_BY_SPIKE, "%1$s was skewered by a sharp spike");
+		addDeathMessage(ModDamageTypes.FALL_ON_SPIKE,
+				"%1$s fell on a sharp spike",
+				"%1$s was thrown into a spike pit by %2$s",
+				"%1$s was skewered by a sharp spike by %2$s using %3$s"
+		);
+		addDeathMessage(ModDamageTypes.IMPALED_BY_SPIKE,
+				"%1$s was impaled by a sharp spike",
+				"%1$s was impaled onto a sharp spike by %2$s",
+				"%1$s was impaled onto a sharp spike by %2$s using %3$s"
+		);
 
-		addDeathMessage(ModDamageTypes.CORROSIVE_ACID, "%1$s succumbed from severe acid burns");
-		addDeathMessage(ModDamageTypes.BLEED, "%1$s perished from severe blood loss");
+		addDeathMessage(ModDamageTypes.CORROSIVE_ACID,
+				"%1$s succumbed to severe acid burns",
+				"%1$s was doused with corrosive acid by %2$s",
+				"%1$s was showered in corrosive acid by %2$s using %3$s"
+		);
+		addDeathMessage(ModDamageTypes.BLEED,
+				"%1$s perished from severe blood loss",
+				"%1$s was drained of blood by %2$s",
+				"%1$s was blood let by %2$s using %3$s"
+		);
 
-		addDeathMessage(ModEntityTypes.TOOTH_PROJECTILE, "[WIP] %1$s was forcefully implanted with teeth by %2$s", "[WIP] %1$s received a lethal dental implant by %2$s using %3$s");
-		addDeathMessage(ModEntityTypes.CORROSIVE_ACID_PROJECTILE, "[WIP] %1$s was doused with corrosive acid by %2$s", "[WIP] %1$s was showered in corrosive acid by %2$s using %3$s");
+		addDeathMessage(ModDamageTypes.TOOTH_PROJECTILE, "[WIP]",
+				"[WIP] %1$s was forcefully implanted with teeth by %2$s",
+				"[WIP] %1$s received a lethal dental implant by %2$s using %3$s");
 	}
 
 	private void addSerumTranslations() {
@@ -345,12 +385,20 @@ public class EnglishLangProvider extends AbstractLangProvider {
 		add(Serum.EMPTY, "ERROR: INVALID SERUM");
 	}
 
+	private void addPotionTranslations() {
+		String suffix = ModPotions.GASTRIC_JUICE.getId().toLanguageKey();
+		add(Items.POTION.getDescriptionId() + ".effect." + suffix, "Gastric Juice");
+		add(Items.SPLASH_POTION.getDescriptionId() + ".effect." + suffix, "Gastric Splash-Juice");
+		add(Items.LINGERING_POTION.getDescriptionId() + ".effect." + suffix, "Gastric Linger-Juice");
+		add(Items.TIPPED_ARROW.getDescriptionId() + ".effect." + suffix, "Arrow of Gastric Juice");
+	}
+
 	private void addStatusEffectTranslations() {
 		addEffect(ModMobEffects.CORROSIVE, "Corrosive Acid");
 		addEffect(ModMobEffects.ARMOR_SHRED, "Armor Shred");
 		addEffect(ModMobEffects.LIBIDO, "Fertility");
 		addEffect(ModMobEffects.BLEED, "Bleed");
-		addEffect(ModMobEffects.ESSENCE_ANEMIA, "[PH] Essence Anemia");
+		addEffect(ModMobEffects.ESSENCE_ANEMIA, "Essence Anemia");
 		addEffect(ModMobEffects.DROWSY, "Drowsy");
 		addEffect(ModMobEffects.DESPOIL, "Despoil");
 		addEffect(ModMobEffects.ESSENCE_AMENIA,"Essence Amenia");
@@ -361,6 +409,9 @@ public class EnglishLangProvider extends AbstractLangProvider {
 	private void addEnchantmentTranslations() {
 		addEnchantment(ModEnchantments.DESPOIL, "Despoil", "When killing something with a weapon that has this enchantment, they will drop additional special loot.");
 		addEnchantment(ModEnchantments.ANESTHETIC, "Anesthetic Touch", "Prevents the Damage & Aggro caused by injecting mobs with the Injector. Mobs won't know who attacked them, and animals won't panic anymore.");
+		addEnchantment(ModEnchantments.SURGICAL_PRECISION, "Surgical Precision", "Improves the quality and success of surgeries or extraction of essences from mobs.");
+		addEnchantment(ModEnchantments.PARASITIC_METABOLISM, "Parasitic Metabolism", "When any held or equipped living item is damaged, consumes every 1.5 seconds nutrition from a healthy players food bar to restore nutrients.");
+		addEnchantment(ModEnchantments.SELF_FEEDING, "Self-Feeding", "When any held or equipped living item is damaged, consumes every 1.5 seconds nutrients from the players hotbar.");
 	}
 
 	private void addBannerPatternTranslations() {
@@ -404,11 +455,9 @@ public class EnglishLangProvider extends AbstractLangProvider {
 		addItem(ModItems.BILE, "Bile", "Organic base material which is often used in bio-alchemy.");
 
 		addItem(ModItems.DESPOIL_SICKLE, "Flesh Plunderer", "A very brittle yet highly specialized tool for pillaging special loot from dying mobs.\n\nWhen held in either hand, the tool guarantees Despoil loot drops. When doing so, it receives extra durability damage.");
-		addItem(ModItems.TOXICUS, "[WIP] Toxicus", "[PH] deals corrosive damage");
 		addItem(ModItems.VIAL, "Organic Vial", "A small organic container with very high alchemical resistance, perfect for holding reactive substances.\nThe vial dissolves on use.");
 		addItem(ModItems.LIVING_FLESH, "Living Flesh", "It's alive!\nUnfortunately, it looks too dumb to be the brain of a mob. You should turn it into a construct instead.");
 		addItem(ModItems.PRIMORDIAL_CORE, "Primordial Core", "A ominous artifact made of flesh. Looking at it makes you feel uneasy...");
-		//		addItem(ModItems.PRIMORDIAL_LIVING_OCULUS, "Primordial Oculus", "A ominous eye is gazing at you...");
 		addItem(ModItems.GUIDE_BOOK, "[WIP] Primordial Index", "[WIP] Ask questions?");
 		addItem(ModItems.CREATOR_MIX, "Exotic Flesh Mix", "A meal made for the cradle... not for you.");
 		addItem(ModItems.INJECTOR, "Bio-Injector", """
@@ -422,7 +471,7 @@ public class EnglishLangProvider extends AbstractLangProvider {
 				Looks like some objects are wrapped in an organic layer of skin. Might be filled with items or toxin if your language is set to German.
 								
 				Right Click the Sac to retrieve the Items.""");
-		addItem(ModItems.ACID_BUCKET, "Acid Bucket");
+		addItem(ModItems.ACID_BUCKET, "Gastric Acid Bucket");
 
 		addItem(ModItems.RAVENOUS_CLAWS, "Ravenous Claws", """
 				Extremely hungry and vicious Claws forged by starving living flesh and grafting claws onto it.
@@ -430,11 +479,22 @@ public class EnglishLangProvider extends AbstractLangProvider {
 				Repair the famished claws by feeding them with food via the player inventory, as you would fill a bundle.
 								
 				Killing Mobs with these claws grants blood charges, which allow you to use the Awakened mode.""");
+		addItem(ModItems.CAUSTIC_GUNBLADE, "Caustic Gunblade", """
+				A caustic gunblade that can alternate between melee and ranged mode and utilizes acidic ammo to damage its targets.
+				The acidic ammunition regenerates by itself after 5s of no usage.""");
 		addItem(ModItems.DEV_ARM_CANNON, "[Dev Tool] Arm Cannon", "Creative/Developer Tool for testing projectiles.");
-		addItem(ModItems.BILE_SPITTER, "[WIP] Bile Spitter", "[WIP] \"living\" projectile weapon that shoots corrosive bile.\nIntended behaviour: charge it like a bow to increase damageShape & size of projectile.");
 
-		addItem(ModItems.BIO_EXTRACTOR, "[PH] Bio-Extractor", EMPTY_STRING);
-		addItem(ModItems.ESSENCE, "[PH] Essence", EMPTY_STRING);
+		addItem(ModItems.ACOLYTE_ARMOR_HELMET, "Acolyte Helmet");
+		addItem(ModItems.ACOLYTE_ARMOR_CHESTPLATE, "Acolyte Chestplate");
+		addItem(ModItems.ACOLYTE_ARMOR_LEGGINGS, "Acolyte Leggings");
+		addItem(ModItems.ACOLYTE_ARMOR_BOOTS, "Acolyte Boots");
+
+		addItem(ModItems.THORN_SHIELD, "The Thorn", "Cute but prickly shield.");
+
+		addItem(ModItems.ESSENCE_EXTRACTOR, "Essence Extractor", "Primed Suck, slurps essence from its victims.");
+		addItem(ModItems.ESSENCE, "Essence", "Extracted life essence from a Mob. Contains sequences of genetic information.");
+		add(ModItems.ESSENCE.get().getDescriptionId() + ".mob", "%1$s Essence");
+		add(ModItems.ESSENCE.get().getDescriptionId() + ".unique_mob", "Unique %1$s Essence");
 
 		addItem(ModItems.ORGANIC_COMPOUND, "Organic Compound", "Slimy substance made of bile infused with nutrients.");
 		addItem(ModItems.UNSTABLE_COMPOUND, "Unstable Compound", "Very unstable and reactive substance. Seems like it will combust if it comes in contact with just about anything else.");
@@ -470,11 +530,11 @@ public class EnglishLangProvider extends AbstractLangProvider {
 		addBlock(ModBlocks.BIO_FORGE, "Bio-Forge", "Crafting Station");
 		addBlock(ModBlocks.BIO_LAB, "Bio-Lab", "Bio-alchemical Brewer");
 
-		//		addBlock(ModBlocks.VOICE_BOX, "[PH] Modular Larynx", EMPTY_STRING);
 		addBlock(ModBlocks.TONGUE, "Tongue", "Extracts up to 3 items of the same type every 24 ticks from containers it's attached to, and drops them on the ground.");
 		addBlock(ModBlocks.MAW_HOPPER, "Maw Hopper", "A fleshy sister of the hopper. Transfers up to 16 items at a time.");
 
 		addBlock(ModBlocks.STORAGE_SAC, "Storage Sac", "Cheap Shulker-like storage sac that also acts like a bundle.");
+		addBlock(ModBlocks.CHRYSALIS, "Chrysalis", "Stores babies/children, small mobs and flesh blobs");
 
 		addBlock(ModBlocks.FLESHKIN_CHEST, "Fleshkin Chest", """
 				Crafted from living flesh, the organic composition of the chest grants it remarkable resilience, ensuring the safety of its precious contents even from explosions.
@@ -485,7 +545,7 @@ public class EnglishLangProvider extends AbstractLangProvider {
 		addBlock(ModBlocks.FLESHKIN_PRESSURE_PLATE, "Fleshkin Pressure Sensor", """
 				Fleshkin pancake. Yummy...
 				It has two behaviors, either it only activates for its owner or it only works for everyone else.
-										
+								
 				Sneak click to change its behavior.""");
 
 		addBlock(ModBlocks.FLESH, "Flesh Block", "A generic block of flesh... Don't bother me with this!");
@@ -501,6 +561,7 @@ public class EnglishLangProvider extends AbstractLangProvider {
 		addBlock(ModBlocks.FIBROUS_FLESH, "Fibrous Flesh Block", "A unusual block flesh made from the innards of someone.");
 		addBlock(ModBlocks.CHISELED_FLESH, "Chiseled Flesh Block", "A regal block of flesh... I'm most delighted");
 		addBlock(ModBlocks.ORNATE_FLESH, "Ornamental Flesh Block", "A set of regal teeth and flesh.");
+		addBlock(ModBlocks.ORNATE_FLESH_SLAB, "Ornamental Flesh Slab", "An incomplete set of regal teeth and flesh.");
 		addBlock(ModBlocks.TUBULAR_FLESH_BLOCK, "Tubular Flesh Block", "Fake flesh pipes for everyone.");
 
 		addBlock(ModBlocks.FLESH_FENCE, "Flesh Fence", "Fence made of bones and flesh...");
@@ -520,25 +581,51 @@ public class EnglishLangProvider extends AbstractLangProvider {
 		addBlock(ModBlocks.TENDON_CHAIN, "Tendon Chain", "A chain made of tendons.");
 		addBlock(ModBlocks.VIAL_HOLDER, "Vial Holder", "Display and organize your serums.");
 		addBlock(ModBlocks.IMPERMEABLE_MEMBRANE, "Impermeable Membrane", "Gelatinous-like membrane reinforced with elastic fibers.");
+		addBlock(ModBlocks.IMPERMEABLE_MEMBRANE_PANE, "Impermeable Membrane Pane", "Gelatinous-like membrane reinforced with elastic fibers.");
 		addBlock(ModBlocks.BABY_PERMEABLE_MEMBRANE, "Baby-Permeable Membrane", "Gelatinous-like membrane reinforced with elastic fibers.\n\nBaby mobs can diffuse through the membrane.");
+		addBlock(ModBlocks.BABY_PERMEABLE_MEMBRANE_PANE, "Baby-Permeable Membrane Pane", "Gelatinous-like membrane reinforced with elastic fibers.\n\nBaby mobs can diffuse through the membrane.");
 		addBlock(ModBlocks.ADULT_PERMEABLE_MEMBRANE, "Adult-Permeable Membrane", "Gelatinous-like membrane reinforced with elastic fibers.\n\nAdult mobs can diffuse through the membrane.");
+		addBlock(ModBlocks.ADULT_PERMEABLE_MEMBRANE_PANE, "Adult-Permeable Membrane Pane", "Gelatinous-like membrane reinforced with elastic fibers.\n\nAdult mobs can diffuse through the membrane.");
 		addBlock(ModBlocks.PRIMAL_PERMEABLE_MEMBRANE, "Primal Membrane", "Gelatinous-like membrane reinforced with elastic fibers.\n\nOnly mobs that are alive can diffuse through the membrane.");
-		addBlock(ModBlocks.UNDEAD_PERMEABLE_MEMBRANE, "Phantom Membrane", "Gelatinous-like membrane reinforced with elastic fibers.\n\nOnly mobs that are undead can diffuse through the membrane.");
+		addBlock(ModBlocks.PRIMAL_PERMEABLE_MEMBRANE_PANE, "Primal Membrane Pane", "Gelatinous-like membrane reinforced with elastic fibers.\n\nOnly mobs that are alive can diffuse through the membrane.");
+		addBlock(ModBlocks.UNDEAD_PERMEABLE_MEMBRANE, "Undead-Permeable Membrane", "Gelatinized phantom membrane reinforced with elastic fibers.\n\nOnly mobs that are undead can diffuse through the membrane.");
+		addBlock(ModBlocks.UNDEAD_PERMEABLE_MEMBRANE_PANE, "Undead-Permeable Membrane Pane", "Gelatinized phantom membrane reinforced with elastic fibers.\n\nOnly mobs that are undead can diffuse through the membrane.");
+		addBlock(ModBlocks.BIOMETRIC_MEMBRANE, "Biometric Membrane", "Membrane which is configured via Mob Essence");
+		add(ModBlocks.BIOMETRIC_MEMBRANE.get().getDescriptionId() + ".inverted", "Inverted Biometric Membrane");
+		add(ModBlocks.BIOMETRIC_MEMBRANE.get().getDescriptionId() + ".inverted.unique", "Inverted Unique Biometric Membrane");
+		add(ModBlocks.BIOMETRIC_MEMBRANE.get().getDescriptionId() + ".unique", "Unique Biometric Membrane");
+
+		addBlock(ModBlocks.MODULAR_LARYNX, "Modular Larynx", """
+				Similar to a Jukebox but made of an adaptive larynx. Capable of reproducing the sounds of a mob via the insertion of essence and redstone power.
+						
+				Right-Click with Mob Essence in hand to insert it.
+				Or Shift Right-Click with empty hand to extract Mob Essence.
+						
+				You can also use automation like Hoppers to insert and extract the Mob Essence.
+				""");
 		//addBlock(ModBlocks.NEURAL_INTERCEPTOR, "Neural Interceptor", "A psychic node that prevents natural mob spawning in a 48 block radius.");
 
 		addBlock(ModBlocks.PRIMAL_FLESH, "Primal Flesh Block", "Primitive and pure, you better not touch this with your dirty mitts.");
 		addBlock(ModBlocks.PRIMAL_FLESH_SLAB, "Primal Flesh Slab", "Primitive and pure, you better not touch this with your dirty mitts.");
 		addBlock(ModBlocks.PRIMAL_FLESH_STAIRS, "Primal Flesh Stairs", "Stairs made of primal flesh.\nFeels primitive and pure...");
 		addBlock(ModBlocks.PRIMAL_FLESH_WALL, "Primal Flesh Wall", "Wall of primal flesh. Is this Terraria?\nYou better start running >:D");
+		addBlock(ModBlocks.SMOOTH_PRIMAL_FLESH, "Smooth Primal Flesh Block", "Primitive and pure, you better not touch this with your dirty mitts.");
+		addBlock(ModBlocks.SMOOTH_PRIMAL_FLESH_SLAB, "Smooth Primal Flesh Slab", "Primitive and pure, you better not touch this with your dirty mitts.");
+		addBlock(ModBlocks.SMOOTH_PRIMAL_FLESH_STAIRS, "Smooth Primal Flesh Stairs", "Stairs made of primal flesh.\nFeels primitive and pure...");
+		addBlock(ModBlocks.SMOOTH_PRIMAL_FLESH_WALL, "Smooth Primal Flesh Wall", "Wall of primal flesh. Is this Terraria?\nYou better start running >:D");
+		addBlock(ModBlocks.POROUS_PRIMAL_FLESH, "Porous Primal Flesh Block", "Primitive and pure, you better not touch this with your dirty mitts.");
+		addBlock(ModBlocks.POROUS_PRIMAL_FLESH_SLAB, "Porous Primal Flesh Slab", "Primitive and pure, you better not touch this with your dirty mitts.");
+		addBlock(ModBlocks.POROUS_PRIMAL_FLESH_STAIRS, "Porous Primal Flesh Stairs", "Stairs made of primal flesh.\nFeels primitive and pure...");
+		addBlock(ModBlocks.POROUS_PRIMAL_FLESH_WALL, "Porous Primal Flesh Wall", "Wall of primal flesh. Is this Terraria?\nYou better start running >:D");
 		addBlock(ModBlocks.MALIGNANT_FLESH, "Malignant Flesh Block", "Looks dangerous, you better not touch it!");
 		addBlock(ModBlocks.MALIGNANT_FLESH_SLAB, "Malignant Flesh Slab", "Looks off-putting, probably best not to touch it.");
 		addBlock(ModBlocks.MALIGNANT_FLESH_STAIRS, "Malignant Flesh Stairs", "Stairs made of malignant flesh.\nLooks diseased...");
 		addBlock(ModBlocks.MALIGNANT_FLESH_WALL, "Malignant Flesh Wall", "Wall of malignant flesh.\nIt's coming for you! ;)");
 		addBlock(ModBlocks.MALIGNANT_FLESH_VEINS, "Malignant Flesh Veins", "They look almost feral...\nyou better not touch them.");
 		addBlock(ModBlocks.PRIMAL_BLOOM, "Primal Bloom", "An exotic flower of primordial beauty.\n\nIt will spread itself by launching it's ripe berry into the air.\nOn impact the berry explodes and spreads malignant veins as well.");
-		addBlock(ModBlocks.PRIMAL_ORIFICE, "Primal Orifice", "A primitive piece full of holes. It seems to leak an acidic substance.");
 
-		addBlock(ModBlocks.ACID_FLUID_BLOCK, "Acid");
+		addBlock(ModBlocks.PRIMAL_ORIFICE, "Primal Orifice", "A primitive piece full of holes that seems to generate and leak acidic juices.\nIt can be milked with buckets and bottles.");
+		addBlock(ModBlocks.ACID_FLUID_BLOCK, "Gastric Acid");
 	}
 
 	private void addEntityTranslations() {

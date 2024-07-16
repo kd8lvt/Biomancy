@@ -91,8 +91,11 @@ public class ModItemModelProvider extends ItemModelProvider {
 		basicItem(ModItems.GIFT_SAC);
 		basicItem(ModItems.FERTILIZER);
 		overlayItem(ModItems.ESSENCE);
-		handheldItem(ModItems.BIO_EXTRACTOR);
-		handheldWeaponItem(ModItems.TOXICUS);
+
+		armorItem(ModItems.ACOLYTE_ARMOR_HELMET);
+		armorItem(ModItems.ACOLYTE_ARMOR_CHESTPLATE);
+		armorItem(ModItems.ACOLYTE_ARMOR_LEGGINGS);
+		armorItem(ModItems.ACOLYTE_ARMOR_BOOTS);
 
 		basicItem(ModItems.FLESH_DOOR);
 		basicItem(ModItems.FULL_FLESH_DOOR);
@@ -100,6 +103,8 @@ public class ModItemModelProvider extends ItemModelProvider {
 		wallBlockItem(ModItems.PACKED_FLESH_WALL);
 		wallBlockItem(ModItems.MALIGNANT_FLESH_WALL);
 		wallBlockItem(ModItems.PRIMAL_FLESH_WALL);
+		wallBlockItem(ModItems.SMOOTH_PRIMAL_FLESH_WALL);
+		wallBlockItem(ModItems.POROUS_PRIMAL_FLESH_WALL);
 		flatBlockItem(ModItems.FLESH_LADDER);
 		flatBlockItem(ModItems.MALIGNANT_FLESH_VEINS);
 
@@ -164,6 +169,10 @@ public class ModItemModelProvider extends ItemModelProvider {
 
 	public ItemModelBuilder serumItem(Item item) {
 		return basicItem(registryKey(item), "serum");
+	}
+
+	public <T extends Item> ItemModelBuilder armorItem(RegistryObject<T> registryObject) {
+		return basicItem(registryObject.getId(), "armor");
 	}
 
 	public ItemModelBuilder genericSerumItem(Item item) {

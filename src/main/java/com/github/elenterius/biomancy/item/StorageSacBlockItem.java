@@ -5,7 +5,6 @@ import com.github.elenterius.biomancy.client.util.ClientTextUtil;
 import com.github.elenterius.biomancy.init.ModCapabilities;
 import com.github.elenterius.biomancy.inventory.ItemStackInventory;
 import com.github.elenterius.biomancy.inventory.itemhandler.EnhancedItemHandler;
-import com.github.elenterius.biomancy.tooltip.HrTooltipComponent;
 import com.github.elenterius.biomancy.tooltip.StorageSacTooltipComponent;
 import com.github.elenterius.biomancy.util.ComponentUtil;
 import net.minecraft.core.Direction;
@@ -18,8 +17,8 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ClickAction;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.BundleItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
@@ -68,7 +67,7 @@ public class StorageSacBlockItem extends BlockItem implements ItemTooltipStylePr
 			if (remainder.getCount() < insertAmount) playRemoveFromSacSound(player);
 			itemHandler.ifPresent(h -> h.insertItemOnExistingFirst(remainder));
 		}
-		else if (otherStack.getItem().canFitInsideContainerItems()) {
+		else if (otherStack.getItem().canFitInsideContainerItems() && !(otherStack.getItem() instanceof BundleItem)) {
 			final int prevCount = otherStack.getCount();
 			ItemStack remainder = getItemHandler(stack).map(h -> h.insertItemOnExistingFirst(slot.safeTake(prevCount, Integer.MAX_VALUE, player))).orElse(ItemStack.EMPTY);
 			slot.safeInsert(remainder);
@@ -92,7 +91,7 @@ public class StorageSacBlockItem extends BlockItem implements ItemTooltipStylePr
 				access.set(stackFromInv);
 			}
 		}
-		else if (otherStack.getItem().canFitInsideContainerItems()) {
+		else if (otherStack.getItem().canFitInsideContainerItems() && !(otherStack.getItem() instanceof BundleItem)) {
 			ItemStack remainder = getItemHandler(stack).map(h -> h.insertItemOnExistingFirst(otherStack)).orElse(ItemStack.EMPTY);
 			final int insertedAmount = otherStack.getCount() - remainder.getCount();
 			if (insertedAmount > 0) {
@@ -111,14 +110,9 @@ public class StorageSacBlockItem extends BlockItem implements ItemTooltipStylePr
 
 	@Override
 	public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
-		super.appendHoverText(stack, level, tooltip, flag);
-		tooltip.add(ClientTextUtil.getItemInfoTooltip(stack));
+		tooltip.addAll(ClientTextUtil.getItemInfoTooltip(stack));
 		tooltip.add(ComponentUtil.tooltip(new StorageSacTooltipComponent(getItemHandler(stack).orElse(null))));
-	}
-
-	@Override
-	public Optional<TooltipComponent> getTooltipImage(ItemStack stack) {
-		return Optional.of(new HrTooltipComponent());
+		super.appendHoverText(stack, level, tooltip, flag);
 	}
 
 	private void playRemoveFromSacSound(Player player) {

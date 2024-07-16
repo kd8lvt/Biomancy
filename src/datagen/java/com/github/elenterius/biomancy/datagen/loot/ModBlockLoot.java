@@ -1,7 +1,9 @@
 package com.github.elenterius.biomancy.datagen.loot;
 
 import com.github.elenterius.biomancy.block.DirectionalSlabBlock;
+import com.github.elenterius.biomancy.block.chrysalis.Chrysalis;
 import com.github.elenterius.biomancy.block.fleshspike.FleshSpikeBlock;
+import com.github.elenterius.biomancy.block.membrane.BiometricMembraneBlockEntity;
 import com.github.elenterius.biomancy.block.property.DirectionalSlabType;
 import com.github.elenterius.biomancy.init.ModBlocks;
 import net.minecraft.advancements.critereon.EnchantmentPredicate;
@@ -13,6 +15,7 @@ import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
@@ -58,6 +61,10 @@ public class ModBlockLoot extends BlockLootSubProvider {
 		return blocks;
 	}
 
+	protected LootTable.Builder createShearsOrSilkTouchOnlyDrop(ItemLike item) {
+		return LootTable.lootTable().withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1)).when(HAS_SHEARS_OR_SILK_TOUCH).add(LootItem.lootTableItem(item)));
+	}
+
 	protected LootTable.Builder createNameableBioMachineTable(Block block) {
 		return LootTable.lootTable().withPool(applyExplosionCondition(block, LootPool.lootPool().setRolls(ConstantValue.exactly(1))
 				.add(LootItem.lootTableItem(block)
@@ -80,6 +87,21 @@ public class ModBlockLoot extends BlockLootSubProvider {
 				.add(LootItem.lootTableItem(block)
 						.apply(CopyNameFunction.copyName(CopyNameFunction.NameSource.BLOCK_ENTITY))
 						.apply(CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY).copy("Inventory", "BlockEntityTag.Inventory"))
+				)));
+	}
+
+	protected LootTable.Builder dropChrysalisWithEntity(Block block) {
+		return LootTable.lootTable().withPool(applyExplosionCondition(block, LootPool.lootPool().setRolls(ConstantValue.exactly(1))
+				.add(LootItem.lootTableItem(block)
+						.apply(CopyNameFunction.copyName(CopyNameFunction.NameSource.BLOCK_ENTITY))
+						.apply(CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY).copy(Chrysalis.ENTITY_KEY, "BlockEntityTag." + Chrysalis.ENTITY_KEY))
+				)));
+	}
+
+	protected LootTable.Builder dropMembraneSettings(Block block) {
+		return LootTable.lootTable().withPool(applyExplosionCondition(block, LootPool.lootPool().setRolls(ConstantValue.exactly(1))
+				.add(LootItem.lootTableItem(block)
+						.apply(CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY).copy(BiometricMembraneBlockEntity.MEMBRANE_KEY, "BlockEntityTag." + BiometricMembraneBlockEntity.MEMBRANE_KEY))
 				)));
 	}
 
@@ -136,6 +158,7 @@ public class ModBlockLoot extends BlockLootSubProvider {
 		dropSelf(ModBlocks.TONGUE.get());
 		dropSelf(ModBlocks.MAW_HOPPER.get());
 		add(ModBlocks.STORAGE_SAC.get(), this::dropWithInventory);
+		add(ModBlocks.CHRYSALIS.get(), this::dropChrysalisWithEntity);
 
 		add(ModBlocks.BIO_FORGE.get(), this::createNameableBioMachineTable);
 		add(ModBlocks.BIO_LAB.get(), this::createNameableBioMachineTable);
@@ -159,6 +182,7 @@ public class ModBlockLoot extends BlockLootSubProvider {
 		dropSelf(ModBlocks.FIBROUS_FLESH.get());
 		dropSelf(ModBlocks.CHISELED_FLESH.get());
 		dropSelf(ModBlocks.ORNATE_FLESH.get());
+		add(ModBlocks.ORNATE_FLESH_SLAB.get(), this::createDirectionalSlabTable);
 		dropSelf(ModBlocks.TUBULAR_FLESH_BLOCK.get());
 
 		dropSelf(ModBlocks.PRIMAL_FLESH.get());
@@ -166,20 +190,37 @@ public class ModBlockLoot extends BlockLootSubProvider {
 		dropSelf(ModBlocks.PRIMAL_FLESH_STAIRS.get());
 		dropSelf(ModBlocks.PRIMAL_FLESH_WALL.get());
 
+		dropSelf(ModBlocks.SMOOTH_PRIMAL_FLESH.get());
+		add(ModBlocks.SMOOTH_PRIMAL_FLESH_SLAB.get(), this::createDirectionalSlabTable);
+		dropSelf(ModBlocks.SMOOTH_PRIMAL_FLESH_STAIRS.get());
+		dropSelf(ModBlocks.SMOOTH_PRIMAL_FLESH_WALL.get());
+
+		dropSelf(ModBlocks.POROUS_PRIMAL_FLESH.get());
+		add(ModBlocks.POROUS_PRIMAL_FLESH_SLAB.get(), this::createDirectionalSlabTable);
+		dropSelf(ModBlocks.POROUS_PRIMAL_FLESH_STAIRS.get());
+		dropSelf(ModBlocks.POROUS_PRIMAL_FLESH_WALL.get());
+
 		dropSelf(ModBlocks.MALIGNANT_FLESH.get());
 		add(ModBlocks.MALIGNANT_FLESH_SLAB.get(), this::createDirectionalSlabTable);
 		dropSelf(ModBlocks.MALIGNANT_FLESH_STAIRS.get());
 		dropSelf(ModBlocks.MALIGNANT_FLESH_WALL.get());
 		add(ModBlocks.MALIGNANT_FLESH_VEINS.get(), block -> createMultifaceBlockDrops(block, HAS_SHEARS_OR_SILK_TOUCH));
-		add(ModBlocks.PRIMAL_BLOOM.get(), noDrop());
+		add(ModBlocks.PRIMAL_BLOOM.get(), this::createShearsOrSilkTouchOnlyDrop);
 		dropSelf(ModBlocks.PRIMAL_ORIFICE.get());
 
-		//		dropSelf(ModBlocks.VOICE_BOX.get());
 		dropSelf(ModBlocks.IMPERMEABLE_MEMBRANE.get());
+		dropSelf(ModBlocks.IMPERMEABLE_MEMBRANE_PANE.get());
 		dropSelf(ModBlocks.BABY_PERMEABLE_MEMBRANE.get());
+		dropSelf(ModBlocks.BABY_PERMEABLE_MEMBRANE_PANE.get());
 		dropSelf(ModBlocks.ADULT_PERMEABLE_MEMBRANE.get());
+		dropSelf(ModBlocks.ADULT_PERMEABLE_MEMBRANE_PANE.get());
 		dropSelf(ModBlocks.PRIMAL_PERMEABLE_MEMBRANE.get());
+		dropSelf(ModBlocks.PRIMAL_PERMEABLE_MEMBRANE_PANE.get());
 		dropSelf(ModBlocks.UNDEAD_PERMEABLE_MEMBRANE.get());
+		dropSelf(ModBlocks.UNDEAD_PERMEABLE_MEMBRANE_PANE.get());
+		add(ModBlocks.BIOMETRIC_MEMBRANE.get(), this::dropMembraneSettings);
+
+		dropSelf(ModBlocks.MODULAR_LARYNX.get());
 		//dropSelf(ModBlocks.NEURAL_INTERCEPTOR.get());
 
 		dropSelf(ModBlocks.FLESH_IRIS_DOOR.get());

@@ -1,7 +1,6 @@
 package com.github.elenterius.biomancy.datagen.recipes.builder;
 
 import com.github.elenterius.biomancy.BiomancyMod;
-import com.github.elenterius.biomancy.crafting.recipe.DigesterRecipe;
 import com.github.elenterius.biomancy.init.ModItems;
 import com.github.elenterius.biomancy.init.ModRecipes;
 import com.google.gson.JsonArray;
@@ -21,6 +20,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.ItemLike;
+import net.minecraftforge.common.crafting.ConditionalAdvancement;
 import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.common.crafting.conditions.ICondition;
 import net.minecraftforge.common.crafting.conditions.ModLoadedCondition;
@@ -37,10 +37,12 @@ public class DigesterRecipeBuilder implements IRecipeBuilder {
 	public static final String RECIPE_SUB_FOLDER = ModRecipes.DIGESTING_RECIPE_TYPE.getId().getPath();
 	public static final String SUFFIX = "_from_" + RECIPE_SUB_FOLDER;
 
+	public static final short DEFAULT_CRAFTING_COST_NUTRIENTS = 1;
+
 	private final ResourceLocation recipeId;
 	private final List<ICondition> conditions = new ArrayList<>();
 	private final ItemData recipeResult;
-	private final Advancement.Builder advancement = Advancement.Builder.advancement();
+	private final Advancement.Builder advancement = Advancement.Builder.recipeAdvancement();
 	private Ingredient recipeIngredient;
 	private int craftingTimeTicks = -1;
 	private int craftingCostNutrients = -1;
@@ -51,14 +53,11 @@ public class DigesterRecipeBuilder implements IRecipeBuilder {
 		this.recipeId = new ResourceLocation(recipeId.getNamespace(), RECIPE_SUB_FOLDER + "/" + recipeId.getPath());
 		recipeResult = result;
 
-		if (recipeResult.getRegistryName().equals(ModItems.NUTRIENTS.getId())) {
-			craftingTimeTicks = Mth.ceil(200 + 190 * Math.log(recipeResult.getCount() / 5d));
-		}
-		else if (recipeResult.getRegistryName().equals(ModItems.NUTRIENT_PASTE.getId())) {
+		if (recipeResult.getRegistryName().equals(ModItems.NUTRIENT_PASTE.getId())) {
 			craftingTimeTicks = Mth.ceil(200 + 190 * Math.log(recipeResult.getCount()));
 		}
 		else if (recipeResult.getRegistryName().equals(ModItems.NUTRIENT_BAR.getId())) {
-			craftingTimeTicks = Mth.ceil(200 + 190 * Math.log(recipeResult.getCount() * 9));
+			craftingTimeTicks = Mth.ceil(200 + 190 * Math.log(recipeResult.getCount() * 9d));
 		}
 	}
 
@@ -163,7 +162,7 @@ public class DigesterRecipeBuilder implements IRecipeBuilder {
 		}
 
 		if (craftingCostNutrients < 0) {
-			craftingCostNutrients = CraftingCostUtil.getCost(DigesterRecipe.DEFAULT_CRAFTING_COST_NUTRIENTS, craftingTimeTicks);
+			craftingCostNutrients = CraftingCostUtil.getCost(DEFAULT_CRAFTING_COST_NUTRIENTS, craftingTimeTicks);
 		}
 
 		advancement.parent(new ResourceLocation("recipes/root")).addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(recipeId)).rewards(AdvancementRewards.Builder.recipe(recipeId)).requirements(RequirementsStrategy.OR);
@@ -202,6 +201,7 @@ public class DigesterRecipeBuilder implements IRecipeBuilder {
 			conditions = builder.conditions;
 
 			advancementBuilder = builder.advancement;
+
 			this.advancementId = advancementId;
 		}
 
@@ -235,7 +235,12 @@ public class DigesterRecipeBuilder implements IRecipeBuilder {
 
 		@Nullable
 		public JsonObject serializeAdvancement() {
-			return advancementBuilder.serializeToJson();
+			if (conditions.isEmpty()) return advancementBuilder.serializeToJson();
+
+			ConditionalAdvancement.Builder conditionalBuilder = ConditionalAdvancement.builder();
+			conditions.forEach(conditionalBuilder::addCondition);
+			conditionalBuilder.addAdvancement(advancementBuilder);
+			return conditionalBuilder.write();
 		}
 
 		@Nullable

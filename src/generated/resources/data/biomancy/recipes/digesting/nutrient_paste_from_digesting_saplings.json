@@ -1,0 +1,11 @@
+{
+  "type": "biomancy:digesting",
+  "ingredient": {
+    "tag": "minecraft:saplings"
+  },
+  "nutrientsCost": 1,
+  "processingTime": 215,
+  "result": {
+    "item": "biomancy:nutrient_paste"
+  }
+}

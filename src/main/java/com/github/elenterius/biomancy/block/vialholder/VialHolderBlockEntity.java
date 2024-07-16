@@ -21,6 +21,8 @@ public class VialHolderBlockEntity extends SimpleSyncedBlockEntity {
 
 	public VialHolderBlockEntity(BlockPos pos, BlockState blockState) {
 		super(ModBlockEntities.VIAL_HOLDER.get(), pos, blockState);
+		reRenderBlockOnSync = true;
+
 		inventory = new ItemStackHandler(5) {
 			@Override
 			public int getSlotLimit(int slot) {
@@ -36,23 +38,28 @@ public class VialHolderBlockEntity extends SimpleSyncedBlockEntity {
 			protected void onContentsChanged(int slot) {
 				setChanged();
 				syncToClient();
+				updateBlockStateDelayed();
 			}
 		};
 	}
 
-	protected void syncToClient() {
-		if (level != null && !level.isClientSide) {
+	protected void updateBlockStateDelayed() {
+		if (level == null || level.isClientSide()) return;
+		level.scheduleTick(getBlockPos(), getBlockState().getBlock(), 1);
+	}
 
-			BlockState newState = getBlockState();
-			for (int i = 0; i < VialHolderBlock.VIAL_PROPERTIES.length; i++) {
-				BooleanProperty vialProperty = VialHolderBlock.VIAL_PROPERTIES[i];
-				newState = newState.setValue(vialProperty, inventory.getStackInSlot(i).getItem() instanceof SerumContainer);
-			}
+	protected void updateBlockState() {
+		if (level == null || level.isClientSide()) return;
 
-			level.setBlockAndUpdate(getBlockPos(), newState);
+		BlockState oldState = getBlockState();
+		BlockState newState = getBlockState();
+		for (int i = 0; i < VialHolderBlock.VIAL_PROPERTIES.length; i++) {
+			BooleanProperty vialProperty = VialHolderBlock.VIAL_PROPERTIES[i];
+			newState = newState.setValue(vialProperty, inventory.getStackInSlot(i).getItem() instanceof SerumContainer);
+		}
 
-			BlockState state = getBlockState();
-			level.sendBlockUpdated(getBlockPos(), state, state, Block.UPDATE_CLIENTS);
+		if (newState != oldState) {
+			level.setBlock(getBlockPos(), newState, Block.UPDATE_ALL);
 		}
 	}
 
@@ -66,17 +73,7 @@ public class VialHolderBlockEntity extends SimpleSyncedBlockEntity {
 	public void load(CompoundTag tag) {
 		super.load(tag);
 		inventory.deserializeNBT(tag.getCompound(INVENTORY_TAG));
-
-		if (level != null && !level.isClientSide) {
-			BlockState state = getBlockState();
-			for (int i = 0; i < VialHolderBlock.VIAL_PROPERTIES.length; i++) {
-				BooleanProperty vialProperty = VialHolderBlock.VIAL_PROPERTIES[i];
-				state = state.setValue(vialProperty, inventory.getStackInSlot(i).getItem() instanceof SerumContainer);
-			}
-			if (state != getBlockState()) {
-				level.setBlockAndUpdate(getBlockPos(), state);
-			}
-		}
+		updateBlockStateDelayed();
 	}
 
 	@Override

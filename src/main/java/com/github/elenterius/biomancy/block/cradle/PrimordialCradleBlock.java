@@ -1,17 +1,13 @@
 package com.github.elenterius.biomancy.block.cradle;
 
-import com.github.elenterius.biomancy.block.fleshkinchest.FleshkinChestBlock;
-import com.github.elenterius.biomancy.block.storagesac.StorageSacBlock;
 import com.github.elenterius.biomancy.client.util.ClientTextUtil;
-import com.github.elenterius.biomancy.init.ModBlockEntities;
-import com.github.elenterius.biomancy.init.ModItems;
-import com.github.elenterius.biomancy.init.ModSoundEvents;
-import com.github.elenterius.biomancy.init.ModTriggers;
+import com.github.elenterius.biomancy.init.*;
 import com.github.elenterius.biomancy.init.tags.ModItemTags;
 import com.github.elenterius.biomancy.integration.ModsCompatHandler;
 import com.github.elenterius.biomancy.styles.TextStyles;
 import com.github.elenterius.biomancy.util.ComponentUtil;
 import com.github.elenterius.biomancy.util.SoundUtil;
+import com.github.elenterius.biomancy.world.mound.MoundShape;
 import com.github.elenterius.biomancy.world.spatial.SpatialShapeManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -31,7 +27,10 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -57,16 +56,21 @@ public class PrimordialCradleBlock extends HorizontalDirectionalBlock implements
 
 		Item item = stack.getItem();
 
+		if (item instanceof TieredItem || item instanceof Vanishable) return true;
+
 		if (item instanceof BlockItem blockItem) {
 			Block block = blockItem.getBlock();
-			if (block instanceof ShulkerBoxBlock || block instanceof FleshkinChestBlock || block instanceof StorageSacBlock) {
-				return true;
-			}
+
+			//prevent all items that have a BlockEntity associated with it from being sacrificed
+			// e.g. complex modded blocks such as computers, machines, containers, etc.
+			if (block instanceof EntityBlock) return true;
 		}
 
 		if (ModsCompatHandler.getTetraHelper().isToolOrModularItem(item)) return true;
 
-		return item instanceof TieredItem || item instanceof Vanishable || stack.isEnchanted();
+		if (stack.isEnchanted()) return true;
+		if (!item.canFitInsideContainerItems()) return true;
+		return stack.getCapability(ModCapabilities.ITEM_HANDLER).isPresent();
 	};
 
 	protected static final VoxelShape INSIDE_AABB = box(3, 4, 3, 13, 16, 13);
@@ -93,6 +97,13 @@ public class PrimordialCradleBlock extends HorizontalDirectionalBlock implements
 
 	public static int getPrimalEnergy(CompoundTag tag) {
 		return tag.contains(PrimordialCradleBlockEntity.PRIMAL_ENERGY_KEY) ? tag.getInt(PrimordialCradleBlockEntity.PRIMAL_ENERGY_KEY) : 0;
+	}
+
+	private static MutableComponent createValueComponent(DecimalFormat df, int value, String name) {
+		return ComponentUtil.literal(df.format(value))
+				.withStyle(TextStyles.PRIMORDIAL_RUNES_LIGHT_GRAY)
+				.append(ComponentUtil.space())
+				.append(ComponentUtil.literal(name).withStyle(TextStyles.GRAY));
 	}
 
 	@Override
@@ -151,7 +162,7 @@ public class PrimordialCradleBlock extends HorizontalDirectionalBlock implements
 			return InteractionResult.SUCCESS;
 		}
 		if (!level.isClientSide) {
-			SoundUtil.broadcastBlockSound((ServerLevel) level, pos, ModSoundEvents.CREATOR_NO);
+			SoundUtil.broadcastBlockSound((ServerLevel) level, pos, ModSoundEvents.CRADLE_NO);
 		}
 
 		return InteractionResult.CONSUME;
@@ -179,19 +190,20 @@ public class PrimordialCradleBlock extends HorizontalDirectionalBlock implements
 	}
 
 	private boolean increaseFillLevel(@Nullable Entity player, Level level, BlockPos pos, ItemStack stack) {
-		if (!stack.isEmpty() && !level.isClientSide()) {
-			if (CANNOT_BE_SACRIFICED.test(stack)) return false;
+		if (level.isClientSide()) return false;
+		if (stack.isEmpty()) return false;
+		if (CANNOT_BE_SACRIFICED.test(stack)) return false;
 
-			ItemStack copyOfStack = ItemHandlerHelper.copyStackWithSize(stack, 1); //creator#insertItem modifies the stack which may lead to it being empty
-			if (level.getBlockEntity(pos) instanceof PrimordialCradleBlockEntity creator && !creator.isFull() && creator.insertItem(stack)) {
-				if (player instanceof ServerPlayer serverPlayer) {
-					ModTriggers.SACRIFICED_ITEM_TRIGGER.trigger(serverPlayer, copyOfStack);
-				}
-				SoundEvent soundEvent = creator.isFull() ? ModSoundEvents.CREATOR_BECAME_FULL.get() : ModSoundEvents.CREATOR_EAT.get();
-				SoundUtil.broadcastBlockSound((ServerLevel) level, pos, soundEvent);
-				return true;
+		ItemStack copyOfStack = ItemHandlerHelper.copyStackWithSize(stack, 1); //cradle#insertItem modifies the stack which may lead to it being empty
+		if (level.getBlockEntity(pos) instanceof PrimordialCradleBlockEntity cradle && !cradle.isFull() && cradle.insertItem(stack)) {
+			if (player instanceof ServerPlayer serverPlayer) {
+				ModTriggers.SACRIFICED_ITEM_TRIGGER.trigger(serverPlayer, copyOfStack);
 			}
+			SoundEvent soundEvent = cradle.isFull() ? ModSoundEvents.CRADLE_BECAME_FULL.get() : ModSoundEvents.CRADLE_EAT.get();
+			SoundUtil.broadcastBlockSound((ServerLevel) level, pos, soundEvent);
+			return true;
 		}
+
 		return false;
 	}
 
@@ -217,7 +229,7 @@ public class PrimordialCradleBlock extends HorizontalDirectionalBlock implements
 				level.addParticle(ParticleTypes.ENTITY_EFFECT, pos.getX() + ((random.nextFloat() * 0.60625) + 0.13125f), pos.getY() + 0.5f, pos.getZ() + ((random.nextFloat() * 0.60625) + 0.13125f), r, g, b);
 			}
 			if (random.nextInt(3) == 0) {
-				SoundUtil.clientPlayBlockSound(level, pos, ModSoundEvents.CREATOR_CRAFTING_RANDOM, 0.85f);
+				SoundUtil.clientPlayBlockSound(level, pos, ModSoundEvents.CRADLE_CRAFTING_RANDOM, 0.85f);
 			}
 		}
 	}
@@ -227,21 +239,46 @@ public class PrimordialCradleBlock extends HorizontalDirectionalBlock implements
 		CompoundTag tag = BlockItem.getBlockEntityData(stack);
 		if (tag == null) return;
 
-		tooltip.add(ComponentUtil.emptyLine());
-
 		DecimalFormat df = ClientTextUtil.getDecimalFormatter("#,###,###");
 
 		int primalEnergy = getPrimalEnergy(tag);
-		if (primalEnergy > 0) {
+		boolean hasPrimalEnergy = primalEnergy > 0;
+		boolean hasTributes = tag.contains(PrimordialCradleBlockEntity.SACRIFICE_KEY);
+		boolean hasProcGenValues = tag.contains(PrimordialCradleBlockEntity.PROC_GEN_VALUES_KEY);
+
+		if (hasProcGenValues) {
+			tooltip.add(ComponentUtil.emptyLine());
+			tooltip.add(ComponentUtil.literal("Seeded with:").withStyle(TextStyles.PRIMORDIAL_RUNES_MUTED_PURPLE));
+
+			MoundShape.ProcGenValues procGenValues = MoundShape.ProcGenValues.readFrom(tag.getCompound(PrimordialCradleBlockEntity.PROC_GEN_VALUES_KEY));
+
 			tooltip.add(
-					ComponentUtil.literal(df.format(primalEnergy))
-							.withStyle(TextStyles.PRIMORDIAL_RUNES_LIGHT_GRAY)
-							.append(ComponentUtil.space())
-							.append(ComponentUtil.translatable("tooltip.biomancy.primal_energy").withStyle(TextStyles.GRAY))
+					ComponentUtil.literal(df.format(procGenValues.biomeTemperature()))
+							.withStyle(TextStyles.PRIMORDIAL_RUNES_PURPLE)
+							.append(ComponentUtil.literal(" Temperature").withStyle(TextStyles.PRIMORDIAL_RUNES_MUTED_PURPLE))
 			);
+			tooltip.add(
+					ComponentUtil.literal(df.format(procGenValues.biomeHumidity()))
+							.withStyle(TextStyles.PRIMORDIAL_RUNES_PURPLE)
+							.append(ComponentUtil.literal(" Humidity").withStyle(TextStyles.PRIMORDIAL_RUNES_MUTED_PURPLE))
+			);
+
+			if (!hasPrimalEnergy) tooltip.add(ComponentUtil.emptyLine());
 		}
 
-		if (tag.contains(PrimordialCradleBlockEntity.SACRIFICE_KEY)) {
+		if (hasPrimalEnergy) {
+			tooltip.add(ComponentUtil.emptyLine());
+			tooltip.add(
+					ComponentUtil.literal(df.format(primalEnergy)).withStyle(TextStyles.PRIMORDIAL_RUNES_PURPLE)
+							.append(ComponentUtil.literal(" Primal Energy").withStyle(TextStyles.PRIMORDIAL_RUNES_MUTED_PURPLE))
+			);
+
+			if (!hasTributes) tooltip.add(ComponentUtil.emptyLine());
+		}
+
+		if (hasTributes) {
+			tooltip.add(ComponentUtil.emptyLine());
+
 			CompoundTag sacrificeTag = tag.getCompound(PrimordialCradleBlockEntity.SACRIFICE_KEY);
 			byte biomass = sacrificeTag.getByte("Biomass");
 			int lifeEnergy = sacrificeTag.getInt("LifeEnergy");
@@ -257,12 +294,5 @@ public class PrimordialCradleBlock extends HorizontalDirectionalBlock implements
 			if (hostile > 0) tooltip.add(createValueComponent(df, hostile, "Hostile"));
 			if (anomaly > 0) tooltip.add(createValueComponent(df, anomaly, "Anomaly"));
 		}
-	}
-
-	private static MutableComponent createValueComponent(DecimalFormat df, int value, String name) {
-		return ComponentUtil.literal(df.format(value))
-				.withStyle(TextStyles.PRIMORDIAL_RUNES_LIGHT_GRAY)
-				.append(ComponentUtil.space())
-				.append(ComponentUtil.literal(name).withStyle(TextStyles.GRAY));
 	}
 }

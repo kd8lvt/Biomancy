@@ -2,6 +2,7 @@ package com.github.elenterius.biomancy.datagen.tags;
 
 import com.github.elenterius.biomancy.block.FleshDoorBlock;
 import com.github.elenterius.biomancy.block.FullFleshDoorBlock;
+import com.github.elenterius.biomancy.block.membrane.Membrane;
 import com.github.elenterius.biomancy.init.ModBlocks;
 import com.github.elenterius.biomancy.init.tags.ModBlockTags;
 import net.minecraft.core.HolderLookup;
@@ -80,14 +81,18 @@ public class ModBlockTagsProvider extends BlockTagsProvider {
 				ModBlocks.FLESH_WALL.get(),
 				ModBlocks.PACKED_FLESH_WALL.get(),
 				ModBlocks.MALIGNANT_FLESH_WALL.get(),
-				ModBlocks.PRIMAL_FLESH_WALL.get()
+				ModBlocks.PRIMAL_FLESH_WALL.get(),
+				ModBlocks.SMOOTH_PRIMAL_FLESH_WALL.get(),
+				ModBlocks.POROUS_PRIMAL_FLESH_WALL.get()
 		);
 
 		tag(BlockTags.STAIRS).add(
 				ModBlocks.FLESH_STAIRS.get(),
 				ModBlocks.PACKED_FLESH_STAIRS.get(),
 				ModBlocks.MALIGNANT_FLESH_STAIRS.get(),
-				ModBlocks.PRIMAL_FLESH_STAIRS.get()
+				ModBlocks.PRIMAL_FLESH_STAIRS.get(),
+				ModBlocks.SMOOTH_PRIMAL_FLESH_STAIRS.get(),
+				ModBlocks.POROUS_PRIMAL_FLESH_STAIRS.get()
 		);
 
 		tag(BlockTags.PRESSURE_PLATES).add(ModBlocks.FLESHKIN_PRESSURE_PLATE.get());
@@ -97,17 +102,15 @@ public class ModBlockTagsProvider extends BlockTagsProvider {
 		tag(BlockTags.SLABS).add(
 				ModBlocks.FLESH_SLAB.get(),
 				ModBlocks.PACKED_FLESH_SLAB.get(),
+				ModBlocks.ORNATE_FLESH_SLAB.get(),
 				ModBlocks.PRIMAL_FLESH_SLAB.get(),
+				ModBlocks.SMOOTH_PRIMAL_FLESH_SLAB.get(),
+				ModBlocks.POROUS_PRIMAL_FLESH_SLAB.get(),
 				ModBlocks.MALIGNANT_FLESH_SLAB.get()
 		);
 
-		tag(BlockTags.IMPERMEABLE).add(
-				ModBlocks.IMPERMEABLE_MEMBRANE.get(),
-				ModBlocks.BABY_PERMEABLE_MEMBRANE.get(),
-				ModBlocks.ADULT_PERMEABLE_MEMBRANE.get(),
-				ModBlocks.PRIMAL_PERMEABLE_MEMBRANE.get(),
-				ModBlocks.UNDEAD_PERMEABLE_MEMBRANE.get()
-		);
+		IntrinsicTagAppender<Block> impermeableTag = tag(BlockTags.IMPERMEABLE);
+		ModBlocks.BLOCKS.getEntries().stream().map(RegistryObject::get).filter(Membrane.class::isInstance).forEach(impermeableTag::add);
 	}
 
 	private void addFleshyBlocksToHoeTag() {
@@ -122,10 +125,16 @@ public class ModBlockTagsProvider extends BlockTagsProvider {
 		String modId = "create";
 
 		//Blocks which should be able to move on contraptions, but would otherwise be ignored due to their empty collision shape
+		//Example: Cobweb
 		tag(tagKey(modId, "movable_empty_collider")).add(
 				ModBlocks.FLESH_DOOR.get(),
 				ModBlocks.FLESH_IRIS_DOOR.get()
 		);
+
+		//Blocks which can count toward a functional windmill structure
+		//Example: Wool
+		IntrinsicTagAppender<Block> windmillSailsTag = tag(tagKey(modId, "windmill_sails"));
+		ModBlocks.BLOCKS.getEntries().stream().map(RegistryObject::get).filter(Membrane.class::isInstance).forEach(windmillSailsTag::add);
 	}
 
 	/**
@@ -134,9 +143,8 @@ public class ModBlockTagsProvider extends BlockTagsProvider {
 	private void addQuarkTags() {
 		String modId = "quark";
 
-		TagKey<Block> noDoubleDoor = tagKey(modId, "non_double_door");
-		IntrinsicTagAppender<Block> tag = tag(noDoubleDoor);
+		IntrinsicTagAppender<Block> nonDoubleDoorTag = tag(tagKey(modId, "non_double_door"));
 		Predicate<Block> predicate = block -> block instanceof FleshDoorBlock || block instanceof FullFleshDoorBlock;
-		ModBlocks.BLOCKS.getEntries().stream().map(RegistryObject::get).filter(predicate).forEach(tag::add);
+		ModBlocks.BLOCKS.getEntries().stream().map(RegistryObject::get).filter(predicate).forEach(nonDoubleDoorTag::add);
 	}
 }

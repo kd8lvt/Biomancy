@@ -1,13 +1,13 @@
 package com.github.elenterius.biomancy.item.weapon;
 
+import com.github.elenterius.biomancy.api.livingtool.LivingToolState;
 import com.github.elenterius.biomancy.client.render.item.ravenousclaws.RavenousClawsRenderer;
 import com.github.elenterius.biomancy.client.util.ClientTextUtil;
+import com.github.elenterius.biomancy.init.ModDamageSources;
 import com.github.elenterius.biomancy.init.ModParticleTypes;
 import com.github.elenterius.biomancy.init.ModSoundEvents;
-import com.github.elenterius.biomancy.item.AttackReachIndicator;
+import com.github.elenterius.biomancy.item.ItemAttackDamageSourceProvider;
 import com.github.elenterius.biomancy.item.ItemCharge;
-import com.github.elenterius.biomancy.item.livingtool.LivingClawsItem;
-import com.github.elenterius.biomancy.item.livingtool.LivingToolState;
 import com.github.elenterius.biomancy.styles.TextComponentUtil;
 import com.github.elenterius.biomancy.styles.TextStyles;
 import com.github.elenterius.biomancy.util.CombatUtil;
@@ -22,6 +22,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.SlotAccess;
@@ -52,7 +54,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-public class RavenousClawsItem extends LivingClawsItem implements GeoItem, ItemCharge, AttackReachIndicator {
+public class RavenousClawsItem extends LivingClawsItem implements GeoItem, ItemCharge, ItemAttackDamageSourceProvider {
 	protected static final UUID BASE_ATTACK_KNOCKBACK_UUID = UUID.fromString("6175525b-56dd-4f87-b035-86b892afe7b3");
 	private final Lazy<Multimap<Attribute, AttributeModifier>> brokenAttributes;
 	private final Lazy<Multimap<Attribute, AttributeModifier>> dormantAttributes;
@@ -65,7 +67,7 @@ public class RavenousClawsItem extends LivingClawsItem implements GeoItem, ItemC
 		float attackSpeedModifier = (float) (attackSpeed - Attributes.ATTACK_SPEED.getDefaultValue());
 		brokenAttributes = Lazy.of(() -> createDefaultAttributeModifiers(0, 0, -0.5f).build());
 		dormantAttributes = Lazy.of(() -> createDefaultAttributeModifiers(-1 + attackDamage, attackSpeedModifier, 0).build());
-		awakenedAttributes = Lazy.of(() -> createDefaultAttributeModifiers(-1 + attackDamage + 2, attackSpeedModifier, 0.5f).build());
+		awakenedAttributes = Lazy.of(() -> createDefaultAttributeModifiers(-1 + attackDamage + 2.5f, attackSpeedModifier, 0.5f).build());
 	}
 
 	private static void playBloodyClawsFX(LivingEntity attacker) {
@@ -125,12 +127,6 @@ public class RavenousClawsItem extends LivingClawsItem implements GeoItem, ItemC
 		}
 
 		return InteractionResultHolder.success(flags);
-	}
-
-	public ItemStack createItemStackForCreativeTab() {
-		ItemStack stack = new ItemStack(this);
-		setNutrients(stack, Integer.MAX_VALUE);
-		return stack;
 	}
 
 	@Override
@@ -213,8 +209,8 @@ public class RavenousClawsItem extends LivingClawsItem implements GeoItem, ItemC
 	}
 
 	@Override
-	public int getNutrientFuelValue(ItemStack container, ItemStack food) {
-		return super.getNutrientFuelValue(container, food) / 2;
+	public @Nullable DamageSource getDamageSource(ItemStack stack, Entity target, LivingEntity attacker) {
+		return ModDamageSources.bleed(attacker.level(), attacker);
 	}
 
 	@Override
@@ -238,6 +234,9 @@ public class RavenousClawsItem extends LivingClawsItem implements GeoItem, ItemC
 						attacker.level().playSound(null, attacker.getX(), attacker.getY(), attacker.getZ(), ModSoundEvents.CLAWS_ATTACK_BLEED_PROC.get(), attacker.getSoundSource(), 1f, 1f);
 
 						CombatUtil.applyBleedEffect(target, 20);
+						if (isNotCreativePlayer) {
+							consumeNutrients(stack, 1);
+						}
 					}
 
 					target.invulnerableTime = 0; //make victims vulnerable the next attack regardless of the damage amount
@@ -260,9 +259,16 @@ public class RavenousClawsItem extends LivingClawsItem implements GeoItem, ItemC
 						if (CombatUtil.getBleedEffectLevel(target) < 2) {
 							playBloodExplosionFX(target);
 							CombatUtil.hurtWithBleed(target, 0.1f * target.getMaxHealth());
+
+							if (isNotCreativePlayer) {
+								consumeCharge(stack, 4);
+							}
 						}
 
 						CombatUtil.applyBleedEffect(target, 20);
+						if (isNotCreativePlayer) {
+							consumeCharge(stack, 1);
+						}
 					}
 
 					target.invulnerableTime = 0; //make victims vulnerable the next attack regardless of the damage amount
@@ -275,9 +281,9 @@ public class RavenousClawsItem extends LivingClawsItem implements GeoItem, ItemC
 
 	@Override
 	public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag isAdvanced) {
-		tooltip.add(ComponentUtil.horizontalLine());
-		tooltip.add(ClientTextUtil.getItemInfoTooltip(stack));
+		tooltip.addAll(ClientTextUtil.getItemInfoTooltip(stack));
 		tooltip.add(ComponentUtil.emptyLine());
+
 		appendLivingToolTooltip(stack, tooltip);
 
 		if (stack.isEnchanted()) {
@@ -294,15 +300,15 @@ public class RavenousClawsItem extends LivingClawsItem implements GeoItem, ItemC
 				//do nothing
 			}
 			case DORMANT -> {
-				tooltip.add(TextComponentUtil.getTooltipText("ability.bleed_proc").append(" (8% chance)").withStyle(ChatFormatting.GRAY));
-				tooltip.add(ComponentUtil.literal(" ").append(TextComponentUtil.getTooltipText("ability.bleed_proc.desc")).withStyle(ChatFormatting.DARK_GRAY));
+				tooltip.add(TextComponentUtil.getAbilityText("bleed_proc").append(" (8% chance)").withStyle(ChatFormatting.GRAY));
+				tooltip.add(ComponentUtil.literal(" ").append(TextComponentUtil.getAbilityText("bleed_proc.desc")).withStyle(ChatFormatting.DARK_GRAY));
 				tooltip.add(ComponentUtil.emptyLine());
 			}
 			case AWAKENED -> {
-				tooltip.add(TextComponentUtil.getTooltipText("ability.bleed_proc").append(" (20% chance)").withStyle(ChatFormatting.GRAY));
-				tooltip.add(ComponentUtil.literal(" ").append(TextComponentUtil.getTooltipText("ability.bleed_proc.desc")).withStyle(ChatFormatting.DARK_GRAY));
-				tooltip.add(TextComponentUtil.getTooltipText("ability.blood_explosion").append(" (20% chance)").withStyle(ChatFormatting.GRAY));
-				tooltip.add(ComponentUtil.literal(" ").append(TextComponentUtil.getTooltipText("ability.blood_explosion.desc")).withStyle(ChatFormatting.DARK_GRAY));
+				tooltip.add(TextComponentUtil.getAbilityText("bleed_proc").append(" (20% chance)").withStyle(ChatFormatting.GRAY));
+				tooltip.add(ComponentUtil.literal(" ").append(TextComponentUtil.getAbilityText("bleed_proc.desc")).withStyle(ChatFormatting.DARK_GRAY));
+				tooltip.add(TextComponentUtil.getAbilityText("blood_explosion").append(" (20% chance)").withStyle(ChatFormatting.GRAY));
+				tooltip.add(ComponentUtil.literal(" ").append(TextComponentUtil.getAbilityText("blood_explosion.desc")).withStyle(ChatFormatting.DARK_GRAY));
 				tooltip.add(ComponentUtil.emptyLine());
 			}
 		}

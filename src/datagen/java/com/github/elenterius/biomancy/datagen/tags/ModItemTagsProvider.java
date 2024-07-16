@@ -79,7 +79,7 @@ public class ModItemTagsProvider extends ItemTagsProvider {
 
 		createTag(ModItemTags.CANNOT_BE_EATEN_BY_CRADLE)
 				.add(DRAGON_EGG, SPAWNER, HEART_OF_THE_SEA)
-				.add(NAME_TAG)
+				.add(NAME_TAG, BUNDLE)
 				.addTag(ItemTags.MUSIC_DISCS)
 				.add(ELYTRA)
 				.addTag(Tags.Items.ARMORS, Tags.Items.TOOLS)
@@ -106,14 +106,17 @@ public class ModItemTagsProvider extends ItemTagsProvider {
 
 		TagKey<Item> swordsTag = forgeTag("tools/swords");
 		createTag(swordsTag)
-				.add(ModItems.DESPOIL_SICKLE.get(), ModItems.TOXICUS.get());
+				.add(ModItems.DESPOIL_SICKLE.get());
 		createTag(ItemTags.SWORDS)
-				.add(ModItems.DESPOIL_SICKLE.get(), ModItems.TOXICUS.get());
+				.add(ModItems.DESPOIL_SICKLE.get());
+
+		createTag(Tags.Items.TOOLS_SHIELDS)
+				.add(ModItems.THORN_SHIELD.get());
 
 		createTag(Tags.Items.TOOLS)
 				.addTag(clawsTag)
 				.addTag(swordsTag)
-				.add(ModItems.INJECTOR.get(), ModItems.BIO_EXTRACTOR.get());
+				.add(ModItems.INJECTOR.get(), ModItems.ESSENCE_EXTRACTOR.get());
 
 		createTag(Tags.Items.CHESTS).add(ModItems.FLESHKIN_CHEST.get());
 

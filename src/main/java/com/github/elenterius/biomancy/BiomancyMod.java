@@ -1,14 +1,13 @@
 package com.github.elenterius.biomancy;
 
+import com.github.elenterius.biomancy.api.livingtool.LivingTool;
 import com.github.elenterius.biomancy.init.*;
 import com.github.elenterius.biomancy.integration.ModsCompatHandler;
 import com.github.elenterius.biomancy.util.ComponentUtil;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.EnchantedBookItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.*;
+import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentInstance;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -21,6 +20,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import software.bernie.geckolib.GeckoLib;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Random;
 import java.util.Set;
 
@@ -30,6 +31,8 @@ public final class BiomancyMod {
 	public static final String MOD_ID = "biomancy";
 	public static final Logger LOGGER = LogManager.getLogger("Biomancy");
 	public static final Random GLOBAL_RANDOM = new Random();
+
+	public static boolean WE_DO_A_LITTLE_FOOLING;
 
 	public BiomancyMod() {
 		GeckoLib.initialize();
@@ -52,6 +55,7 @@ public final class BiomancyMod {
 		ModEnchantments.ENCHANTMENTS.register(modEventBus);
 		ModMobEffects.EFFECTS.register(modEventBus);
 		ModSerums.SERUMS.register(modEventBus);
+		ModPotions.POTIONS.register(modEventBus);
 
 		ModMenuTypes.MENUS.register(modEventBus);
 
@@ -66,6 +70,11 @@ public final class BiomancyMod {
 
 		BiomancyConfig.register(modLoadingContext);
 		ModsCompatHandler.onBiomancyInit(modEventBus);
+
+
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(new Date());
+		WE_DO_A_LITTLE_FOOLING = calendar.get(Calendar.MONTH) == Calendar.APRIL && calendar.get(Calendar.DATE) == 1;
 	}
 
 	public static ResourceLocation createRL(String path) {
@@ -84,25 +93,30 @@ public final class BiomancyMod {
 				Set<RegistryObject<? extends Item>> hiddenItems = Set.of(
 						ModItems.GIFT_SAC,
 						ModItems.ESSENCE,
-						ModItems.BIO_EXTRACTOR,
 						ModItems.GUIDE_BOOK,
-						ModItems.TOXICUS,
-						ModItems.BILE_SPITTER,
 						ModItems.DEV_ARM_CANNON
 				);
+
 				ModItems.ITEMS.getEntries().stream()
 						.filter(entry -> !hiddenItems.contains(entry))
 						.forEach(entry -> {
-							output.accept(entry.get());
+							Item item = entry.get();
+							output.accept(item);
 
-							if (entry.equals(ModItems.RAVENOUS_CLAWS)) {
-								output.accept(ModItems.RAVENOUS_CLAWS.get().createItemStackForCreativeTab());
+							if (item instanceof LivingTool livingTool) {
+								ItemStack itemStack = item.getDefaultInstance();
+								livingTool.setNutrients(itemStack, Integer.MAX_VALUE);
+								output.accept(itemStack);
 							}
 
 							if (entry.equals(ModItems.FLESHKIN_CHEST)) {
 								output.accept(ModBlocks.FLESHKIN_CHEST.get().createItemStackForCreativeTab());
 							}
 						});
+
+				output.accept(PotionUtils.setPotion(new ItemStack(Items.POTION), ModPotions.GASTRIC_JUICE.get()));
+				output.accept(PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), ModPotions.GASTRIC_JUICE.get()));
+				output.accept(PotionUtils.setPotion(new ItemStack(Items.LINGERING_POTION), ModPotions.GASTRIC_JUICE.get()));
 
 				for (RegistryObject<Enchantment> entry : ModEnchantments.ENCHANTMENTS.getEntries()) {
 					Enchantment enchantment = entry.get();

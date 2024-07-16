@@ -12,6 +12,7 @@ import com.github.elenterius.biomancy.block.property.Orientation;
 import com.github.elenterius.biomancy.block.property.UserSensitivity;
 import com.github.elenterius.biomancy.block.veins.FleshVeinsBlock;
 import com.github.elenterius.biomancy.block.vialholder.VialHolderBlock;
+import com.github.elenterius.biomancy.init.ModBlockProperties;
 import com.github.elenterius.biomancy.init.ModBlocks;
 import net.minecraft.core.Direction;
 import net.minecraft.data.PackOutput;
@@ -27,6 +28,7 @@ import net.minecraftforge.client.model.generators.*;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
 import java.util.Collection;
@@ -80,12 +82,23 @@ public class ModBlockStateProvider extends BlockStateProvider {
 		simpleBlockWithItem(ModBlocks.FIBROUS_FLESH);
 		existingBlockWithItem(ModBlocks.CHISELED_FLESH);
 		axisBlockWithItem(ModBlocks.ORNATE_FLESH);
+		directionalPillarSlabBlockWithItem(ModBlocks.ORNATE_FLESH_SLAB, ModBlocks.ORNATE_FLESH);
 		axisBlockWithItem(ModBlocks.TUBULAR_FLESH_BLOCK);
 
 		simpleBlockWithItem(ModBlocks.PRIMAL_FLESH);
 		directionalSlabBlockWithItem(ModBlocks.PRIMAL_FLESH_SLAB, ModBlocks.PRIMAL_FLESH);
 		stairsBlockWithItem(ModBlocks.PRIMAL_FLESH_STAIRS, ModBlocks.PRIMAL_FLESH);
 		wallBlock(ModBlocks.PRIMAL_FLESH_WALL, ModBlocks.PRIMAL_FLESH);
+
+		simpleBlockWithItem(ModBlocks.SMOOTH_PRIMAL_FLESH);
+		directionalSlabBlockWithItem(ModBlocks.SMOOTH_PRIMAL_FLESH_SLAB, ModBlocks.SMOOTH_PRIMAL_FLESH);
+		stairsBlockWithItem(ModBlocks.SMOOTH_PRIMAL_FLESH_STAIRS, ModBlocks.SMOOTH_PRIMAL_FLESH);
+		wallBlock(ModBlocks.SMOOTH_PRIMAL_FLESH_WALL, ModBlocks.SMOOTH_PRIMAL_FLESH);
+
+		simpleBlockWithItem(ModBlocks.POROUS_PRIMAL_FLESH);
+		directionalSlabBlockWithItem(ModBlocks.POROUS_PRIMAL_FLESH_SLAB, ModBlocks.POROUS_PRIMAL_FLESH);
+		stairsBlockWithItem(ModBlocks.POROUS_PRIMAL_FLESH_STAIRS, ModBlocks.POROUS_PRIMAL_FLESH);
+		wallBlock(ModBlocks.POROUS_PRIMAL_FLESH_WALL, ModBlocks.POROUS_PRIMAL_FLESH);
 
 		simpleBlockWithItem(ModBlocks.MALIGNANT_FLESH);
 		directionalSlabBlockWithItem(ModBlocks.MALIGNANT_FLESH_SLAB, ModBlocks.MALIGNANT_FLESH);
@@ -98,12 +111,20 @@ public class ModBlockStateProvider extends BlockStateProvider {
 		irisDoor(ModBlocks.FLESH_IRIS_DOOR, true);
 		fleshDoor(ModBlocks.FLESH_DOOR);
 		fleshSpikes(ModBlocks.FLESH_SPIKE);
-		translucentBlockWithItem(ModBlocks.IMPERMEABLE_MEMBRANE);
-		membraneWithItem(ModBlocks.BABY_PERMEABLE_MEMBRANE);
-		membraneWithItem(ModBlocks.ADULT_PERMEABLE_MEMBRANE);
-		membraneWithItem(ModBlocks.PRIMAL_PERMEABLE_MEMBRANE);
-		membraneWithItem(ModBlocks.UNDEAD_PERMEABLE_MEMBRANE);
 
+		translucentBlockWithItem(ModBlocks.IMPERMEABLE_MEMBRANE);
+		membranePaneWithItem(ModBlocks.IMPERMEABLE_MEMBRANE_PANE, ModBlocks.IMPERMEABLE_MEMBRANE);
+		translucentBlockWithItem(ModBlocks.BABY_PERMEABLE_MEMBRANE);
+		membranePaneWithItem(ModBlocks.BABY_PERMEABLE_MEMBRANE_PANE, ModBlocks.BABY_PERMEABLE_MEMBRANE);
+		translucentBlockWithItem(ModBlocks.ADULT_PERMEABLE_MEMBRANE);
+		membranePaneWithItem(ModBlocks.ADULT_PERMEABLE_MEMBRANE_PANE, ModBlocks.ADULT_PERMEABLE_MEMBRANE);
+		translucentBlockWithItem(ModBlocks.PRIMAL_PERMEABLE_MEMBRANE);
+		membranePaneWithItem(ModBlocks.PRIMAL_PERMEABLE_MEMBRANE_PANE, ModBlocks.PRIMAL_PERMEABLE_MEMBRANE);
+		translucentBlockWithItem(ModBlocks.UNDEAD_PERMEABLE_MEMBRANE);
+		membranePaneWithItem(ModBlocks.UNDEAD_PERMEABLE_MEMBRANE_PANE, ModBlocks.UNDEAD_PERMEABLE_MEMBRANE);
+		existingBlockWithItem(ModBlocks.BIOMETRIC_MEMBRANE);
+
+		existingBlockWithItem(ModBlocks.MODULAR_LARYNX);
 		//horizontalBlockWithItem(ModBlocks.NEURAL_INTERCEPTOR);
 
 		bioLantern(ModBlocks.YELLOW_BIO_LANTERN);
@@ -126,6 +147,18 @@ public class ModBlockStateProvider extends BlockStateProvider {
 		geckolibModel(ModBlocks.FLESHKIN_CHEST, FLESH_PARTICLE_TEXTURE);
 		fleshkinPressurePlate(ModBlocks.FLESHKIN_PRESSURE_PLATE);
 		storageSac(ModBlocks.STORAGE_SAC);
+		directionalBlockWithItem(ModBlocks.CHRYSALIS.get());
+
+		particleOnly(ModBlocks.ACID_FLUID_BLOCK, new ResourceLocation("biomancy:block/acid_flat"));
+	}
+
+	public <T extends Block> void particleOnly(RegistryObject<T> block, ResourceLocation particleTexture) {
+		particleOnly(block.get(), particleTexture);
+	}
+
+	public void particleOnly(Block block, ResourceLocation particleTexture) {
+		String path = path(block);
+		simpleBlock(block, models().getBuilder(path).texture("particle", particleTexture));
 	}
 
 	public <T extends Block> void translucentBlockWithItem(RegistryObject<T> block) {
@@ -339,11 +372,12 @@ public class ModBlockStateProvider extends BlockStateProvider {
 
 		ModelFile.ExistingModelFile defaultModel = models().getExistingFile(model);
 		ModelFile.ExistingModelFile leakingModel = models().getExistingFile(extend(model, "_leaking"));
+		ModelFile.ExistingModelFile fullModel = models().getExistingFile(extend(model, "_full"));
 
 		ModelFile.ExistingModelFile[] models = {
 				defaultModel,
-				defaultModel,
-				leakingModel
+				leakingModel,
+				fullModel,
 		};
 
 		getVariantBuilder(block)
@@ -488,6 +522,62 @@ public class ModBlockStateProvider extends BlockStateProvider {
 				);
 	}
 
+	public <S extends DirectionalPillarSlabBlock, B extends RotatedPillarBlock> void directionalPillarSlabBlockWithItem(RegistryObject<S> slab, RegistryObject<B> pillarBlock) {
+		directionalPillarSlabBlockWithItem(slab.get(), pillarBlock.get());
+	}
+
+	public void directionalPillarSlabBlockWithItem(DirectionalPillarSlabBlock slab, RotatedPillarBlock pillarBlock) {
+		ResourceLocation side = extend(blockAsset(pillarBlock), "_side");
+		ResourceLocation end = extend(blockAsset(pillarBlock), "_end");
+		ResourceLocation top = extend(blockAsset(slab), "_top");
+
+		directionalPillarSlabBlock(slab, pillarBlock, side, end, top);
+
+		simpleBlockItem(slab);
+	}
+
+	public void directionalPillarSlabBlock(DirectionalPillarSlabBlock slabBlock, RotatedPillarBlock pillarBlock, ResourceLocation side, ResourceLocation end, ResourceLocation top) {
+		BlockModelBuilder slab = models().slab(path(slabBlock), side, end, top);
+
+		ModelFile vertical = models().cubeColumn(path(pillarBlock), side, end);
+		ModelFile horizontal = models().cubeColumnHorizontal(path(pillarBlock) + "_horizontal", side, end);
+
+		directionalPillarSlabBlock(slabBlock, slab, vertical, horizontal);
+	}
+
+	public void directionalPillarSlabBlock(DirectionalPillarSlabBlock block, ModelFile slab, ModelFile vertical, ModelFile horizontal) {
+		getVariantBuilder(block)
+
+				//slab
+				.partialState().with(DirectionalSlabBlock.TYPE, DirectionalSlabType.HALF_DOWN)
+				.modelForState().modelFile(slab).rotationX(180).addModel()
+
+				.partialState().with(DirectionalSlabBlock.TYPE, DirectionalSlabType.HALF_EAST)
+				.modelForState().modelFile(slab).rotationX(90).rotationY(90).addModel()
+
+				.partialState().with(DirectionalSlabBlock.TYPE, DirectionalSlabType.HALF_NORTH)
+				.modelForState().modelFile(slab).rotationX(90).addModel()
+
+				.partialState().with(DirectionalSlabBlock.TYPE, DirectionalSlabType.HALF_SOUTH)
+				.modelForState().modelFile(slab).rotationX(90).rotationY(180).addModel()
+
+				.partialState().with(DirectionalSlabBlock.TYPE, DirectionalSlabType.HALF_UP)
+				.modelForState().modelFile(slab).addModel()
+
+				.partialState().with(DirectionalSlabBlock.TYPE, DirectionalSlabType.HALF_WEST)
+				.modelForState().modelFile(slab).rotationX(90).rotationY(270).addModel()
+
+				//pillar
+				.partialState().with(DirectionalSlabBlock.TYPE, DirectionalSlabType.FULL).with(RotatedPillarBlock.AXIS, Direction.Axis.Y)
+				.modelForState().modelFile(vertical).addModel()
+
+				.partialState().with(DirectionalSlabBlock.TYPE, DirectionalSlabType.FULL).with(RotatedPillarBlock.AXIS, Direction.Axis.Z)
+				.modelForState().modelFile(horizontal).rotationX(90).addModel()
+
+				.partialState().with(DirectionalSlabBlock.TYPE, DirectionalSlabType.FULL).with(RotatedPillarBlock.AXIS, Direction.Axis.X)
+				.modelForState().modelFile(horizontal).rotationX(90).rotationY(90).addModel();
+	}
+
 	public void tendonChain(FleshChainBlock block) {
 		ResourceLocation file = blockAsset(block);
 		ModelFile.ExistingModelFile model = models().getExistingFile(file);
@@ -501,24 +591,6 @@ public class ModBlockStateProvider extends BlockStateProvider {
 				.modelForState().modelFile(model).rotationX(90).rotationY(90).addModel();
 
 		itemModels().basicItem(block.asItem());
-	}
-
-	public void membraneWithItem(RegistryObject<MembraneBlock> registryObject) {
-		membraneWithItem(registryObject.get());
-	}
-
-	public void membraneWithItem(MembraneBlock block) {
-		String path = path(block);
-		//		ResourceLocation texture = blockAsset(block);
-		ResourceLocation template = BiomancyMod.createRL("block/template_membrane");
-
-		ModelFile model = models()
-				.withExistingParent(path, template)
-				.texture("base", BiomancyMod.createRL("block/membrane_base"))
-				.texture("overlay", BiomancyMod.createRL("block/membrane_overlay"));
-
-		simpleBlock(block, model);
-		simpleBlockItem(block, model);
 	}
 
 	public void bioLantern(FleshLanternBlock block) {
@@ -582,14 +654,77 @@ public class ModBlockStateProvider extends BlockStateProvider {
 		});
 	}
 
+	public <T extends PaneBlock, S extends MembraneBlock> void membranePaneWithItem(RegistryObject<T> block, RegistryObject<S> parentBlock) {
+		membranePaneWithItem(block.get(), parentBlock.get());
+	}
+
+	public void membranePaneWithItem(PaneBlock block, MembraneBlock parentBlock) {
+		ResourceLocation texture = blockAsset(parentBlock);
+		customPaneBlock(block, true, true, texture, "translucent", BlockStateProperties.WATERLOGGED);
+	}
+
+	public void customPaneBlock(PaneBlock block, boolean thick, boolean simpleBlockItem, ResourceLocation texture, @Nullable String renderType, Property<?>... ignored) {
+		String name = path(block);
+		String s = thick ? "thick" : "thin";
+
+		BlockModelBuilder defaultPaneModel = models()
+				.withExistingParent(name, BiomancyMod.createRL("block/template_%s_pane".formatted(s)))
+				.texture("front", texture)
+				.texture("side", extend(texture, "_side"));
+
+		if (renderType != null) {
+			defaultPaneModel.renderType(renderType);
+		}
+
+		BlockModelBuilder middlePaneModel = models().withExistingParent(name + "_middle", BiomancyMod.createRL("block/template_%s_pane_middle".formatted(s)))
+				.texture("front", texture)
+				.texture("side", extend(texture, "_side"));
+
+		if (renderType != null) {
+			middlePaneModel.renderType(renderType);
+		}
+
+		customPaneBlock(block, defaultPaneModel, middlePaneModel, ignored);
+
+		if (simpleBlockItem) simpleBlockItem(block, middlePaneModel);
+	}
+
+	public void customPaneBlock(PaneBlock block, ModelFile defaultPaneModel, ModelFile middlePaneModel, Property<?>... ignored) {
+		getVariantBuilder(block)
+				.forAllStatesExcept(state -> {
+					Orientation orientation = state.getValue(ModBlockProperties.ORIENTATION);
+					ModelFile model = orientation.isMiddle() ? middlePaneModel : defaultPaneModel;
+
+					if (orientation.axis == Direction.Axis.Y) {
+						return ConfiguredModel.builder()
+								.modelFile(model)
+								.rotationX(orientation.isNegative() ? 270 : 90)
+								.build();
+					}
+
+					if (orientation.axis == Direction.Axis.X) {
+						return ConfiguredModel.builder()
+								.modelFile(model)
+								.rotationY(orientation.isNegative() ? 270 : 90)
+								.build();
+					}
+
+					//z axis
+					return ConfiguredModel.builder()
+							.modelFile(model)
+							.rotationY(orientation.isPositive() ? 180 : 0)
+							.build();
+				}, ignored);
+	}
+
 	public void irisDoor(IrisDoorBlock block, boolean simpleBlockItem) {
 		ResourceLocation texture = blockAsset(block);
 		String name = path(block);
 
-		ModelFile openModel = models().singleTexture(name + "_open", BiomancyMod.createRL("block/template_iris_door"), extend(texture, "_open"));
-		ModelFile middleOpenModel = models().singleTexture(name + "_middle_open", BiomancyMod.createRL("block/template_iris_door_middle"), extend(texture, "_open"));
-		ModelFile closedModel = models().singleTexture(name + "_closed", BiomancyMod.createRL("block/template_iris_door"), extend(texture, "_closed"));
-		ModelFile middleClosedModel = models().singleTexture(name + "_middle_closed", BiomancyMod.createRL("block/template_iris_door_middle"), extend(texture, "_closed"));
+		ModelFile openModel = models().singleTexture(name + "_open", BiomancyMod.createRL("block/template_thin_pane"), extend(texture, "_open"));
+		ModelFile middleOpenModel = models().singleTexture(name + "_middle_open", BiomancyMod.createRL("block/template_thin_pane_middle"), extend(texture, "_open"));
+		ModelFile closedModel = models().singleTexture(name + "_closed", BiomancyMod.createRL("block/template_thin_pane"), extend(texture, "_closed"));
+		ModelFile middleClosedModel = models().singleTexture(name + "_middle_closed", BiomancyMod.createRL("block/template_thin_pane_middle"), extend(texture, "_closed"));
 
 		irisDoor(block, openModel, closedModel, middleOpenModel, middleClosedModel);
 

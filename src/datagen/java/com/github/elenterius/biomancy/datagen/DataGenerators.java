@@ -3,11 +3,11 @@ package com.github.elenterius.biomancy.datagen;
 import com.github.elenterius.biomancy.BiomancyMod;
 import com.github.elenterius.biomancy.datagen.advancements.ModAdvancementProvider;
 import com.github.elenterius.biomancy.datagen.lang.EnglishLangProvider;
+import com.github.elenterius.biomancy.datagen.lang.PirateLangProvider;
 import com.github.elenterius.biomancy.datagen.loot.ModGlobalLootModifierProvider;
 import com.github.elenterius.biomancy.datagen.loot.ModLootTableProvider;
 import com.github.elenterius.biomancy.datagen.models.ModBlockStateProvider;
 import com.github.elenterius.biomancy.datagen.models.ModItemModelProvider;
-import com.github.elenterius.biomancy.datagen.modonomicon.GuideBookProvider;
 import com.github.elenterius.biomancy.datagen.particles.ModParticleSpriteProvider;
 import com.github.elenterius.biomancy.datagen.recipes.ModRecipeProvider;
 import com.github.elenterius.biomancy.datagen.tags.*;
@@ -48,6 +48,7 @@ public final class DataGenerators {
 		generator.addProvider(includeServer, new ModEntityTypeTagsProvider(packOutput, lookupProvider, existingFileHelper));
 		generator.addProvider(includeServer, new ModBannerPatternTagsProvider(packOutput, lookupProvider, existingFileHelper));
 		generator.addProvider(includeServer, new ModDamageTypeTagsProvider(packOutput, lookupProvider, existingFileHelper));
+		generator.addProvider(includeServer, new ModMobEffectTagsProvider(packOutput, lookupProvider, existingFileHelper));
 
 		//recipes
 		generator.addProvider(includeServer, new ModRecipeProvider(packOutput));
@@ -67,15 +68,17 @@ public final class DataGenerators {
 		generator.addProvider(includeServer, new ModParticleSpriteProvider(packOutput, existingFileHelper));
 
 		//translations
-		EnglishLangProvider translationProvider = new EnglishLangProvider(packOutput);
+		EnglishLangProvider enLanguage = new EnglishLangProvider(packOutput);
+		PirateLangProvider pirateLanguage = new PirateLangProvider(packOutput);
 
 		//advancements
-		generator.addProvider(includeServer, new ModAdvancementProvider(packOutput, lookupProvider, existingFileHelper, translationProvider));
+		generator.addProvider(includeServer, new ModAdvancementProvider(packOutput, lookupProvider, existingFileHelper, enLanguage));
 
 		//guide book
-		generator.addProvider(includeServer, new GuideBookProvider(packOutput, translationProvider));
+		//generator.addProvider(includeServer, new GuideBookProvider(packOutput, enLanguage));
 
-		generator.addProvider(includeServer, translationProvider);
+		generator.addProvider(includeServer, enLanguage);
+		generator.addProvider(includeServer, pirateLanguage);
 	}
 
 }

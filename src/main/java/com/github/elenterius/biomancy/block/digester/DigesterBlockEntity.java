@@ -3,7 +3,7 @@ package com.github.elenterius.biomancy.block.digester;
 import com.github.elenterius.biomancy.block.base.MachineBlock;
 import com.github.elenterius.biomancy.block.base.MachineBlockEntity;
 import com.github.elenterius.biomancy.client.util.ClientLoopingSoundHelper;
-import com.github.elenterius.biomancy.crafting.recipe.DigesterRecipe;
+import com.github.elenterius.biomancy.crafting.recipe.DigestingRecipe;
 import com.github.elenterius.biomancy.crafting.recipe.SimpleRecipeType;
 import com.github.elenterius.biomancy.init.ModBlockEntities;
 import com.github.elenterius.biomancy.init.ModCapabilities;
@@ -15,6 +15,7 @@ import com.github.elenterius.biomancy.menu.DigesterMenu;
 import com.github.elenterius.biomancy.styles.TextComponentUtil;
 import com.github.elenterius.biomancy.util.ILoopingSoundHelper;
 import com.github.elenterius.biomancy.util.SoundUtil;
+import com.github.elenterius.biomancy.util.fuel.FluidFuelConsumerHandler;
 import com.github.elenterius.biomancy.util.fuel.FuelHandler;
 import com.github.elenterius.biomancy.util.fuel.IFuelHandler;
 import net.minecraft.core.BlockPos;
@@ -25,6 +26,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.Container;
 import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -39,8 +41,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoBlockEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
@@ -51,10 +55,9 @@ import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-import javax.annotation.Nonnull;
 import java.util.Objects;
 
-public class DigesterBlockEntity extends MachineBlockEntity<DigesterRecipe, DigesterStateData> implements MenuProvider, GeoBlockEntity {
+public class DigesterBlockEntity extends MachineBlockEntity<DigestingRecipe, Container, DigesterStateData> implements MenuProvider, GeoBlockEntity {
 
 	public static final int FUEL_SLOTS = 1;
 	public static final int INPUT_SLOTS = 1;
@@ -62,7 +65,7 @@ public class DigesterBlockEntity extends MachineBlockEntity<DigesterRecipe, Dige
 
 	public static final int MAX_FUEL = 1_000;
 
-	public static final RegistryObject<SimpleRecipeType.ItemStackRecipeType<DigesterRecipe>> RECIPE_TYPE = ModRecipes.DIGESTING_RECIPE_TYPE;
+	public static final RegistryObject<SimpleRecipeType.ItemStackRecipeType<DigestingRecipe>> RECIPE_TYPE = ModRecipes.DIGESTING_RECIPE_TYPE;
 	protected static final RawAnimation WORKING_ANIM = RawAnimation.begin().thenLoop("digester.working");
 	protected static final RawAnimation IDLE_ANIM = RawAnimation.begin().thenLoop("digester.idle");
 
@@ -75,6 +78,8 @@ public class DigesterBlockEntity extends MachineBlockEntity<DigesterRecipe, Dige
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 	private ILoopingSoundHelper loopingSoundHelper = ILoopingSoundHelper.NULL;
 
+	private LazyOptional<IFluidHandler> optionalFluidConsumer;
+
 	public DigesterBlockEntity(BlockPos pos, BlockState state) {
 		super(ModBlockEntities.DIGESTER.get(), pos, state);
 		inputInventory = BehavioralInventory.createServerContents(INPUT_SLOTS, this::canPlayerOpenInv, this::setChanged);
@@ -84,6 +89,7 @@ public class DigesterBlockEntity extends MachineBlockEntity<DigesterRecipe, Dige
 		fuelHandler = FuelHandler.createNutrientFuelHandler(MAX_FUEL, this::setChanged);
 
 		stateData = new DigesterStateData(fuelHandler);
+		optionalFluidConsumer = LazyOptional.of(() -> new FluidFuelConsumerHandler(fuelHandler));
 	}
 
 	@Override
@@ -120,6 +126,11 @@ public class DigesterBlockEntity extends MachineBlockEntity<DigesterRecipe, Dige
 	}
 
 	@Override
+	protected Container getInputInventory() {
+		return inputInventory;
+	}
+
+	@Override
 	protected IFuelHandler getFuelHandler() {
 		return fuelHandler;
 	}
@@ -135,76 +146,22 @@ public class DigesterBlockEntity extends MachineBlockEntity<DigesterRecipe, Dige
 	}
 
 	@Override
-	protected boolean doesRecipeResultFitIntoOutputInv(DigesterRecipe craftingGoal, ItemStack stackToCraft) {
+	protected boolean doesRecipeResultFitIntoOutputInv(DigestingRecipe craftingGoal, ItemStack stackToCraft) {
 		return outputInventory.doesItemStackFit(stackToCraft);
 	}
 
 	@Override
-	protected @Nullable DigesterRecipe resolveRecipeFromInput(Level level) {
+	protected @Nullable DigestingRecipe resolveRecipeFromInput(Level level) {
 		return RECIPE_TYPE.get().getRecipeFromContainer(level, inputInventory).orElse(null);
 	}
 
 	@Override
-	protected boolean doesRecipeMatchInput(DigesterRecipe recipeToTest, Level level) {
+	protected boolean doesRecipeMatchInput(DigestingRecipe recipeToTest, Level level) {
 		return recipeToTest.matches(inputInventory, level);
 	}
 
 	@Override
-	protected void saveAdditional(CompoundTag tag) {
-		super.saveAdditional(tag);
-		stateData.serialize(tag);
-		tag.put("Fuel", fuelHandler.serializeNBT());
-		tag.put("FuelSlots", fuelInventory.serializeNBT());
-		tag.put("InputSlots", inputInventory.serializeNBT());
-		tag.put("OutputSlots", outputInventory.serializeNBT());
-	}
-
-	@Override
-	public void load(CompoundTag tag) {
-		super.load(tag);
-		stateData.deserialize(tag);
-		fuelHandler.deserializeNBT(tag.getCompound("Fuel"));
-		fuelInventory.deserializeNBT(tag.getCompound("FuelSlots"));
-		inputInventory.deserializeNBT(tag.getCompound("InputSlots"));
-		outputInventory.deserializeNBT(tag.getCompound("OutputSlots"));
-	}
-
-	@Override
-	public void dropAllInvContents(Level level, BlockPos pos) {
-		Containers.dropContents(level, pos, fuelInventory);
-		Containers.dropContents(level, pos, inputInventory);
-		Containers.dropContents(level, pos, outputInventory);
-	}
-
-	@Nonnull
-	@Override
-	public <T> LazyOptional<T> getCapability(Capability<T> cap, @Nullable Direction side) {
-		if (!remove && cap == ModCapabilities.ITEM_HANDLER) {
-			if (side == null || side == Direction.DOWN) return outputInventory.getOptionalItemHandler().cast();
-			if (side == Direction.UP) return inputInventory.getOptionalItemHandler().cast();
-			return fuelInventory.getOptionalItemHandler().cast();
-		}
-		return super.getCapability(cap, side);
-	}
-
-	@Override
-	public void invalidateCaps() {
-		super.invalidateCaps();
-		fuelInventory.invalidate();
-		inputInventory.invalidate();
-		outputInventory.invalidate();
-	}
-
-	@Override
-	public void reviveCaps() {
-		super.reviveCaps();
-		fuelInventory.revive();
-		inputInventory.revive();
-		outputInventory.revive();
-	}
-
-	@Override
-	protected boolean craftRecipe(DigesterRecipe recipeToCraft, Level level) {
+	protected boolean craftRecipe(DigestingRecipe recipeToCraft, Level level) {
 		ItemStack result = recipeToCraft.assemble(inputInventory, level.registryAccess());
 
 		if (!result.isEmpty() && doesRecipeResultFitIntoOutputInv(recipeToCraft, result)) {
@@ -242,6 +199,68 @@ public class DigesterBlockEntity extends MachineBlockEntity<DigesterRecipe, Dige
 
 	public ItemStack getInputSlotStack() {
 		return inputInventory.getItem(0);
+	}
+
+	@Override
+	protected void saveAdditional(CompoundTag tag) {
+		super.saveAdditional(tag);
+		stateData.serialize(tag);
+		tag.put("Fuel", fuelHandler.serializeNBT());
+		tag.put("FuelSlots", fuelInventory.serializeNBT());
+		tag.put("InputSlots", inputInventory.serializeNBT());
+		tag.put("OutputSlots", outputInventory.serializeNBT());
+	}
+
+	@Override
+	public void load(CompoundTag tag) {
+		super.load(tag);
+		stateData.deserialize(tag);
+		fuelHandler.deserializeNBT(tag.getCompound("Fuel"));
+		fuelInventory.deserializeNBT(tag.getCompound("FuelSlots"));
+		inputInventory.deserializeNBT(tag.getCompound("InputSlots"));
+		outputInventory.deserializeNBT(tag.getCompound("OutputSlots"));
+	}
+
+	@Override
+	public void dropAllInvContents(Level level, BlockPos pos) {
+		Containers.dropContents(level, pos, fuelInventory);
+		Containers.dropContents(level, pos, inputInventory);
+		Containers.dropContents(level, pos, outputInventory);
+	}
+
+	@Override
+	public <T> @NotNull LazyOptional<T> getCapability(Capability<T> cap, @Nullable Direction side) {
+		if (remove) return super.getCapability(cap, side);
+
+		if (cap == ModCapabilities.ITEM_HANDLER) {
+			if (side == null || side == Direction.DOWN) return outputInventory.getOptionalItemHandler().cast();
+			if (side == Direction.UP) return inputInventory.getOptionalItemHandler().cast();
+			return fuelInventory.getOptionalItemHandler().cast();
+		}
+
+		if (cap == ModCapabilities.FLUID_HANDLER) {
+			return optionalFluidConsumer.cast();
+		}
+
+		return super.getCapability(cap, side);
+	}
+
+	@Override
+	public void invalidateCaps() {
+		super.invalidateCaps();
+		fuelInventory.invalidate();
+		inputInventory.invalidate();
+		outputInventory.invalidate();
+		optionalFluidConsumer.invalidate();
+	}
+
+	@Override
+	public void reviveCaps() {
+		super.reviveCaps();
+		fuelInventory.revive();
+		inputInventory.revive();
+		outputInventory.revive();
+		optionalFluidConsumer = LazyOptional.of(() -> new FluidFuelConsumerHandler(fuelHandler));
 	}
 
 	@Override

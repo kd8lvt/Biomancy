@@ -2,11 +2,15 @@ package com.github.elenterius.biomancy.init;
 
 import com.github.elenterius.biomancy.BiomancyMod;
 import com.github.elenterius.biomancy.api.serum.Serum;
-import com.github.elenterius.biomancy.init.tags.ModEntityTags;
 import com.github.elenterius.biomancy.item.*;
+import com.github.elenterius.biomancy.item.armor.AcolyteArmorItem;
+import com.github.elenterius.biomancy.item.extractor.ExtractorItem;
 import com.github.elenterius.biomancy.item.injector.InjectorItem;
-import com.github.elenterius.biomancy.item.weapon.*;
-import net.minecraft.tags.TagKey;
+import com.github.elenterius.biomancy.item.shield.ThornShieldItem;
+import com.github.elenterius.biomancy.item.weapon.DespoilingSwordItem;
+import com.github.elenterius.biomancy.item.weapon.RavenousClawsItem;
+import com.github.elenterius.biomancy.item.weapon.gun.CausticGunbladeItem;
+import com.github.elenterius.biomancy.item.weapon.gun.DevArmCannonItem;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -22,24 +26,21 @@ import net.minecraftforge.registries.RegistryObject;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 public final class ModItems {
 
 	public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, BiomancyMod.MOD_ID);
 
 	//# Material / Mob Loot
-	public static final RegistryObject<MobLootItem> MOB_FANG = registerMobLootItem("mob_fang", ModEntityTags.SHARP_FANG);
-	public static final RegistryObject<MobLootItem> MOB_CLAW = registerMobLootItem("mob_claw", ModEntityTags.SHARP_CLAW);
-	public static final RegistryObject<MobLootItem> MOB_SINEW = registerMobLootItem("mob_sinew", ModEntityTags.SINEW, ModRarities.UNCOMMON);
-	public static final RegistryObject<BoneMarrowItem> MOB_MARROW = registerItem("mob_marrow", props -> new BoneMarrowItem(ModEntityTags.BONE_MARROW, props.food(ModFoods.MARROW_FLUID).rarity(ModRarities.RARE)));
-	public static final RegistryObject<BoneMarrowItem> WITHERED_MOB_MARROW = registerItem("withered_mob_marrow", props -> new BoneMarrowItem(ModEntityTags.WITHERED_BONE_MARROW, props.food(ModFoods.CORROSIVE_FLUID).rarity(ModRarities.VERY_RARE)));
-	public static final RegistryObject<MobLootItem> GENERIC_MOB_GLAND = registerItem("mob_gland", props -> new MobLootItem(ModEntityTags.BILE_GLAND, props.food(ModFoods.POOR_FLESH).rarity(ModRarities.UNCOMMON)));
-	public static final RegistryObject<MobLootItem> TOXIN_GLAND = registerItem("toxin_gland", props -> new MobLootItem(ModEntityTags.TOXIN_GLAND, props.food(ModFoods.TOXIN_GLAND).rarity(ModRarities.RARE)));
-	public static final RegistryObject<VolatileGlandItem> VOLATILE_GLAND = registerItem("volatile_gland", props -> new VolatileGlandItem(ModEntityTags.VOLATILE_GLAND, props.food(ModFoods.VOLATILE_GLAND).rarity(ModRarities.RARE)));
-
-	//## Special
-	public static final RegistryObject<SimpleItem> LIVING_FLESH = registerSimpleItem("living_flesh", ModRarities.VERY_RARE);
-	public static final RegistryObject<SimpleItem> PRIMORDIAL_CORE = registerSimpleItem("primordial_core", ModRarities.VERY_RARE);
+	public static final RegistryObject<SimpleItem> MOB_FANG = registerSimpleItem("mob_fang");
+	public static final RegistryObject<SimpleItem> MOB_CLAW = registerSimpleItem("mob_claw");
+	public static final RegistryObject<SimpleItem> MOB_SINEW = registerSimpleItem("mob_sinew", ModRarities.UNCOMMON);
+	public static final RegistryObject<BoneMarrowItem> MOB_MARROW = registerItem("mob_marrow", props -> new BoneMarrowItem(props.food(ModFoods.MARROW_FLUID).rarity(ModRarities.RARE)));
+	public static final RegistryObject<BoneMarrowItem> WITHERED_MOB_MARROW = registerItem("withered_mob_marrow", props -> new BoneMarrowItem(props.food(ModFoods.CORROSIVE_FLUID).rarity(ModRarities.VERY_RARE)));
+	public static final RegistryObject<SimpleItem> GENERIC_MOB_GLAND = registerItem("mob_gland", props -> new SimpleItem(props.food(ModFoods.POOR_FLESH).rarity(ModRarities.UNCOMMON)));
+	public static final RegistryObject<SimpleItem> TOXIN_GLAND = registerItem("toxin_gland", props -> new SimpleItem(props.food(ModFoods.TOXIN_GLAND).rarity(ModRarities.RARE)));
+	public static final RegistryObject<VolatileGlandItem> VOLATILE_GLAND = registerItem("volatile_gland", props -> new VolatileGlandItem(props.food(ModFoods.VOLATILE_GLAND).rarity(ModRarities.RARE)));
 
 	//# Components
 	//## Complex
@@ -80,34 +81,39 @@ public final class ModItems {
 	public static final RegistryObject<SerumItem> ABSORPTION_BOOST = registerSerumItem(ModSerums.ABSORPTION_BOOST);
 	public static final RegistryObject<SerumItem> CLEANSING_SERUM = registerSerumItem(ModSerums.CLEANSING_SERUM);
 	public static final RegistryObject<SerumItem> INSOMNIA_CURE = registerSerumItem(ModSerums.INSOMNIA_CURE);
-	//	public static final RegistryObject<SerumItem> ADRENALINE_SERUM = registerSerumItem(ModSerums.ADRENALINE_SERUM);
-	//	public static final RegistryObject<SerumItem> DECAY_AGENT = registerSerumItem(ModSerums.DECAY_AGENT);
 
-	//# Buckets
-	public static final RegistryObject<BucketItem> ACID_BUCKET = registerItem("acid_bucket", properties -> new BucketItem(ModFluids.ACID, properties.craftRemainder(Items.BUCKET).stacksTo(1).rarity(Rarity.COMMON)));
-
-	//# Misc
-	public static final RegistryObject<GiftSacItem> GIFT_SAC = registerItem("gift_sac", props -> new GiftSacItem(props.stacksTo(1).rarity(ModRarities.ULTRA_RARE)));
-	public static final RegistryObject<SimpleItem> CREATOR_MIX = registerSimpleItem("creator_mix");
-	public static final RegistryObject<FertilizerItem> FERTILIZER = registerItem("fertilizer", props -> new FertilizerItem(props.rarity(ModRarities.UNCOMMON)));
+	//## Special
+	public static final RegistryObject<SimpleItem> PRIMORDIAL_CORE = registerSimpleItem("primordial_core", ModRarities.VERY_RARE);
+	public static final RegistryObject<SimpleItem> LIVING_FLESH = registerSimpleItem("living_flesh", ModRarities.VERY_RARE);
 	public static final RegistryObject<EssenceItem> ESSENCE = registerItem("essence", EssenceItem::new);
-	public static final RegistryObject<BioExtractorItem> BIO_EXTRACTOR = registerItem("bio_extractor", props -> new BioExtractorItem(props.durability(200)));
-	public static final RegistryObject<InjectorItem> INJECTOR = registerItem("injector", props -> new InjectorItem(props.durability(200).rarity(ModRarities.RARE)));
+	public static final RegistryObject<GiftSacItem> GIFT_SAC = registerItem("gift_sac", props -> new GiftSacItem(props.stacksTo(1).rarity(ModRarities.ULTRA_RARE)));
+
+	//# Tools
 	public static final RegistryObject<GuideBookItem> GUIDE_BOOK = registerItem("guide_book", props -> new GuideBookItem(props.stacksTo(1).rarity(ModRarities.RARE)));
-
-	public static final RegistryObject<MaykerBannerPatternItem> MASCOT_BANNER_PATTERNS = registerItem("mascot_patterns", props -> new MaykerBannerPatternItem(ModBannerPatterns.TAG_MASCOT, props));
-
-	//# Weapons
 	public static final RegistryObject<DespoilingSwordItem> DESPOIL_SICKLE = registerItem("despoil_sickle", props -> SwordSmithy.forge(DespoilingSwordItem::new, ModTiers.PRIMAL_FLESH, 12, 1, props.rarity(ModRarities.VERY_RARE)));
-	public static final RegistryObject<ToxicusItem> TOXICUS = registerItem("toxicus", props -> SwordSmithy.forge(ToxicusItem::new, ModTiers.LESSER_BIO_FLESH, 14, 0.7f, props));
-	public static final RegistryObject<RavenousClawsItem> RAVENOUS_CLAWS = registerItem("ravenous_claws", props -> new RavenousClawsItem(ModTiers.BIOFLESH, 3, 4, 250, props.setNoRepair().rarity(ModRarities.VERY_RARE)));
+	public static final RegistryObject<ExtractorItem> ESSENCE_EXTRACTOR = registerItem("extractor", props -> new ExtractorItem(props.durability(200).rarity(ModRarities.RARE)));
+	public static final RegistryObject<InjectorItem> INJECTOR = registerItem("injector", props -> new InjectorItem(props.durability(200).rarity(ModRarities.RARE)));
+	public static final RegistryObject<RavenousClawsItem> RAVENOUS_CLAWS = registerItem("ravenous_claws", props -> new RavenousClawsItem(ModTiers.BIOFLESH, 3.5f, 4, 250, props.rarity(ModRarities.VERY_RARE)));
+	public static final RegistryObject<CausticGunbladeItem> CAUSTIC_GUNBLADE = registerItem("caustic_gunblade", props -> new CausticGunbladeItem(200, props.stacksTo(1).rarity(ModRarities.VERY_RARE)));
 	public static final RegistryObject<DevArmCannonItem> DEV_ARM_CANNON = registerItem("dev_arm_cannon", props -> new DevArmCannonItem(props.stacksTo(1).durability(ModTiers.BIOFLESH.getUses()).rarity(ModRarities.ULTRA_RARE)));
-	public static final RegistryObject<BileSpitterItem> BILE_SPITTER = registerItem("bile_spitter", props -> new BileSpitterItem(props.stacksTo(1).durability(ModTiers.BIOFLESH.getUses()).rarity(ModRarities.ULTRA_RARE)));
+
+	//# Shield
+	public static final RegistryObject<ThornShieldItem> THORN_SHIELD = registerItem("thorn_shield", props -> new ThornShieldItem(250, props.stacksTo(1).rarity(ModRarities.VERY_RARE)));
+
+	//# Armor
+	public static final RegistryObject<AcolyteArmorItem> ACOLYTE_ARMOR_HELMET = registerLivingArmorHelmet("acolyte_armor", ModArmorMaterials.ACOLYTE, 200, AcolyteArmorItem::new);
+	public static final RegistryObject<AcolyteArmorItem> ACOLYTE_ARMOR_CHESTPLATE = registerLivingArmorChestplate("acolyte_armor", ModArmorMaterials.ACOLYTE, 250, AcolyteArmorItem::new);
+	public static final RegistryObject<AcolyteArmorItem> ACOLYTE_ARMOR_LEGGINGS = registerLivingArmorLeggings("acolyte_armor", ModArmorMaterials.ACOLYTE, 250, AcolyteArmorItem::new);
+	public static final RegistryObject<AcolyteArmorItem> ACOLYTE_ARMOR_BOOTS = registerLivingArmorBoots("acolyte_armor", ModArmorMaterials.ACOLYTE, 200, AcolyteArmorItem::new);
 
 	//# Food/Fuel
 	public static final RegistryObject<EffectCureItem> NUTRIENT_PASTE = registerItem("nutrient_paste", props -> new EffectCureItem(props.food(ModFoods.NUTRIENT_PASTE)));
 	public static final RegistryObject<EffectCureItem> NUTRIENT_BAR = registerItem("nutrient_bar", props -> new EffectCureItem(props.food(ModFoods.NUTRIENT_BAR)));
 	public static final RegistryObject<BloomberryItem> BLOOMBERRY = registerItem("bloomberry", props -> new BloomberryItem(props.food(ModFoods.NUTRIENT_PASTE)));
+	public static final RegistryObject<FertilizerItem> FERTILIZER = registerItem("fertilizer", props -> new FertilizerItem(props.rarity(ModRarities.UNCOMMON)));
+	public static final RegistryObject<SimpleItem> CREATOR_MIX = registerSimpleItem("creator_mix");
+	public static final RegistryObject<BucketItem> ACID_BUCKET = registerItem("acid_bucket", properties -> new BucketItem(ModFluids.ACID, properties.craftRemainder(Items.BUCKET).stacksTo(1).rarity(Rarity.COMMON)));
+	public static final RegistryObject<MaykerBannerPatternItem> MASCOT_BANNER_PATTERNS = registerItem("mascot_patterns", props -> new MaykerBannerPatternItem(ModBannerPatterns.TAG_MASCOT, props));
 
 	//# Block Items
 
@@ -118,16 +124,44 @@ public final class ModItems {
 	public static final RegistryObject<SimpleBlockItem> BIO_LAB = registerSimpleBlockItem(ModBlocks.BIO_LAB, ModRarities.RARE);
 	public static final RegistryObject<SimpleBlockItem> DIGESTER = registerSimpleBlockItem(ModBlocks.DIGESTER, ModRarities.RARE);
 
-	//## Storage & Automation
+	//## Storage, Automation & Utility
 	public static final RegistryObject<SimpleBlockItem> TONGUE = registerSimpleBlockItem(ModBlocks.TONGUE, ModRarities.UNCOMMON);
 	public static final RegistryObject<SimpleBlockItem> MAW_HOPPER = registerSimpleBlockItem(ModBlocks.MAW_HOPPER, ModRarities.UNCOMMON);
 	public static final RegistryObject<FleshkinChestBlockItem> FLESHKIN_CHEST = registerBlockItem(ModBlocks.FLESHKIN_CHEST, FleshkinChestBlockItem::new, ModRarities.UNCOMMON);
-	public static final RegistryObject<StorageSacBlockItem> STORAGE_SAC = registerBlockItem(ModBlocks.STORAGE_SAC, StorageSacBlockItem::new);
+	public static final RegistryObject<StorageSacBlockItem> STORAGE_SAC = registerBlockItem(ModBlocks.STORAGE_SAC, block -> new StorageSacBlockItem(block, createProperties().stacksTo(1)));
+	public static final RegistryObject<SimpleBlockItem> VIAL_HOLDER = registerSimpleBlockItem(ModBlocks.VIAL_HOLDER);
+	public static final RegistryObject<ChrysalisBlockItem> CHRYSALIS = registerBlockItem(ModBlocks.CHRYSALIS, ChrysalisBlockItem::new, ModRarities.VERY_RARE);
+	public static final RegistryObject<SimpleBlockItem> MODULAR_LARYNX = registerSimpleBlockItem(ModBlocks.MODULAR_LARYNX);
+	public static final RegistryObject<SimpleBlockItem> FLESH_SPIKE = registerSimpleBlockItem(ModBlocks.FLESH_SPIKE);
+	public static final RegistryObject<SimpleBlockItem> FLESHKIN_PRESSURE_PLATE = registerSimpleBlockItem(ModBlocks.FLESHKIN_PRESSURE_PLATE);
 
-	//## Ownable
+	//public static final RegistryObject<SimpleBlockItem> NEURAL_INTERCEPTOR = registerSimpleBlockItem(ModBlocks.NEURAL_INTERCEPTOR, ModRarities.VERY_RARE);
 	//	public static final RegistryObject<SimpleBlockItem> FLESHKIN_DOOR = registerSimpleBlockItem(ModBlocks.FLESHKIN_DOOR);
 	//	public static final RegistryObject<SimpleBlockItem> FLESHKIN_TRAPDOOR = registerSimpleBlockItem(ModBlocks.FLESHKIN_TRAPDOOR);
-	public static final RegistryObject<SimpleBlockItem> FLESHKIN_PRESSURE_PLATE = registerSimpleBlockItem(ModBlocks.FLESHKIN_PRESSURE_PLATE);
+
+	public static final RegistryObject<SimpleBlockItem> FLESH_IRIS_DOOR = registerSimpleBlockItem(ModBlocks.FLESH_IRIS_DOOR);
+	public static final RegistryObject<SimpleBlockItem> FLESH_DOOR = registerSimpleBlockItem(ModBlocks.FLESH_DOOR);
+	public static final RegistryObject<SimpleBlockItem> FULL_FLESH_DOOR = registerSimpleBlockItem(ModBlocks.FULL_FLESH_DOOR);
+	public static final RegistryObject<FleshChainBlockItem> TENDON_CHAIN = registerBlockItem(ModBlocks.TENDON_CHAIN, FleshChainBlockItem::new);
+	public static final RegistryObject<SimpleBlockItem> FLESH_LADDER = registerSimpleBlockItem(ModBlocks.FLESH_LADDER);
+	public static final RegistryObject<SimpleBlockItem> FLESH_FENCE = registerSimpleBlockItem(ModBlocks.FLESH_FENCE);
+	public static final RegistryObject<SimpleBlockItem> FLESH_FENCE_GATE = registerSimpleBlockItem(ModBlocks.FLESH_FENCE_GATE);
+	public static final RegistryObject<SimpleBlockItem> YELLOW_BIO_LANTERN = registerSimpleBlockItem(ModBlocks.YELLOW_BIO_LANTERN);
+	public static final RegistryObject<SimpleBlockItem> BLUE_BIO_LANTERN = registerSimpleBlockItem(ModBlocks.BLUE_BIO_LANTERN);
+	public static final RegistryObject<SimpleBlockItem> PRIMORDIAL_BIO_LANTERN = registerSimpleBlockItem(ModBlocks.PRIMORDIAL_BIO_LANTERN);
+
+	//## Membranes
+	public static final RegistryObject<SimpleBlockItem> BIOMETRIC_MEMBRANE = registerBlockItem(ModBlocks.BIOMETRIC_MEMBRANE, BiometricMembraneBlockItem::new, ModRarities.VERY_RARE);
+	public static final RegistryObject<SimpleBlockItem> IMPERMEABLE_MEMBRANE = registerSimpleBlockItem(ModBlocks.IMPERMEABLE_MEMBRANE);
+	public static final RegistryObject<SimpleBlockItem> IMPERMEABLE_MEMBRANE_PANE = registerSimpleBlockItem(ModBlocks.IMPERMEABLE_MEMBRANE_PANE);
+	public static final RegistryObject<SimpleBlockItem> BABY_PERMEABLE_MEMBRANE = registerSimpleBlockItem(ModBlocks.BABY_PERMEABLE_MEMBRANE);
+	public static final RegistryObject<SimpleBlockItem> BABY_PERMEABLE_MEMBRANE_PANE = registerSimpleBlockItem(ModBlocks.BABY_PERMEABLE_MEMBRANE_PANE);
+	public static final RegistryObject<SimpleBlockItem> ADULT_PERMEABLE_MEMBRANE = registerSimpleBlockItem(ModBlocks.ADULT_PERMEABLE_MEMBRANE);
+	public static final RegistryObject<SimpleBlockItem> ADULT_PERMEABLE_MEMBRANE_PANE = registerSimpleBlockItem(ModBlocks.ADULT_PERMEABLE_MEMBRANE_PANE);
+	public static final RegistryObject<SimpleBlockItem> PRIMAL_PERMEABLE_MEMBRANE = registerSimpleBlockItem(ModBlocks.PRIMAL_PERMEABLE_MEMBRANE);
+	public static final RegistryObject<SimpleBlockItem> PRIMAL_PERMEABLE_MEMBRANE_PANE = registerSimpleBlockItem(ModBlocks.PRIMAL_PERMEABLE_MEMBRANE_PANE);
+	public static final RegistryObject<SimpleBlockItem> UNDEAD_PERMEABLE_MEMBRANE = registerSimpleBlockItem(ModBlocks.UNDEAD_PERMEABLE_MEMBRANE);
+	public static final RegistryObject<SimpleBlockItem> UNDEAD_PERMEABLE_MEMBRANE_PANE = registerSimpleBlockItem(ModBlocks.UNDEAD_PERMEABLE_MEMBRANE_PANE);
 
 	//## Building Blocks
 	public static final RegistryObject<SimpleBlockItem> FLESH_BLOCK = registerSimpleBlockItem(ModBlocks.FLESH);
@@ -138,48 +172,33 @@ public final class ModItems {
 	public static final RegistryObject<SimpleBlockItem> PACKED_FLESH_SLAB = registerSimpleBlockItem(ModBlocks.PACKED_FLESH_SLAB);
 	public static final RegistryObject<SimpleBlockItem> PACKED_FLESH_STAIRS = registerSimpleBlockItem(ModBlocks.PACKED_FLESH_STAIRS);
 	public static final RegistryObject<SimpleBlockItem> PACKED_FLESH_WALL = registerSimpleBlockItem(ModBlocks.PACKED_FLESH_WALL);
-	public static final RegistryObject<ObfuscatedTooltipBlockItem> FLESH_PILLAR = registerBlockItem(ModBlocks.FLESH_PILLAR, ObfuscatedTooltipBlockItem::new);
-	public static final RegistryObject<ObfuscatedTooltipBlockItem> FIBROUS_FLESH_BLOCK = registerBlockItem(ModBlocks.FIBROUS_FLESH, ObfuscatedTooltipBlockItem::new);
-	public static final RegistryObject<ObfuscatedTooltipBlockItem> CHISELED_FLESH_BLOCK = registerBlockItem(ModBlocks.CHISELED_FLESH, ObfuscatedTooltipBlockItem::new);
-	public static final RegistryObject<ObfuscatedTooltipBlockItem> ORNATE_FLESH_BLOCK = registerBlockItem(ModBlocks.ORNATE_FLESH, ObfuscatedTooltipBlockItem::new);
-	public static final RegistryObject<ObfuscatedTooltipBlockItem> TUBULAR_FLESH_BLOCK = registerBlockItem(ModBlocks.TUBULAR_FLESH_BLOCK, ObfuscatedTooltipBlockItem::new);
+	public static final RegistryObject<SimpleBlockItem> FLESH_PILLAR = registerSimpleBlockItem(ModBlocks.FLESH_PILLAR);
+	public static final RegistryObject<SimpleBlockItem> FIBROUS_FLESH_BLOCK = registerSimpleBlockItem(ModBlocks.FIBROUS_FLESH);
+	public static final RegistryObject<SimpleBlockItem> CHISELED_FLESH_BLOCK = registerSimpleBlockItem(ModBlocks.CHISELED_FLESH);
+	public static final RegistryObject<SimpleBlockItem> ORNATE_FLESH_BLOCK = registerSimpleBlockItem(ModBlocks.ORNATE_FLESH);
+	public static final RegistryObject<SimpleBlockItem> ORNATE_FLESH_SLAB = registerSimpleBlockItem(ModBlocks.ORNATE_FLESH_SLAB);
+	public static final RegistryObject<SimpleBlockItem> TUBULAR_FLESH_BLOCK = registerSimpleBlockItem(ModBlocks.TUBULAR_FLESH_BLOCK);
 
-	public static final RegistryObject<ObfuscatedTooltipBlockItem> PRIMAL_FLESH_BLOCK = registerBlockItem(ModBlocks.PRIMAL_FLESH, ObfuscatedTooltipBlockItem::new);
-	public static final RegistryObject<ObfuscatedTooltipBlockItem> PRIMAL_FLESH_SLAB = registerBlockItem(ModBlocks.PRIMAL_FLESH_SLAB, ObfuscatedTooltipBlockItem::new);
-	public static final RegistryObject<ObfuscatedTooltipBlockItem> PRIMAL_FLESH_STAIRS = registerBlockItem(ModBlocks.PRIMAL_FLESH_STAIRS, ObfuscatedTooltipBlockItem::new);
-	public static final RegistryObject<ObfuscatedTooltipBlockItem> PRIMAL_FLESH_WALL = registerBlockItem(ModBlocks.PRIMAL_FLESH_WALL, ObfuscatedTooltipBlockItem::new);
-	public static final RegistryObject<ObfuscatedTooltipBlockItem> MALIGNANT_FLESH_BLOCK = registerBlockItem(ModBlocks.MALIGNANT_FLESH, ObfuscatedTooltipBlockItem::new);
-	public static final RegistryObject<ObfuscatedTooltipBlockItem> MALIGNANT_FLESH_SLAB = registerBlockItem(ModBlocks.MALIGNANT_FLESH_SLAB, ObfuscatedTooltipBlockItem::new);
-	public static final RegistryObject<ObfuscatedTooltipBlockItem> MALIGNANT_FLESH_STAIRS = registerBlockItem(ModBlocks.MALIGNANT_FLESH_STAIRS, ObfuscatedTooltipBlockItem::new);
-	public static final RegistryObject<ObfuscatedTooltipBlockItem> MALIGNANT_FLESH_WALL = registerBlockItem(ModBlocks.MALIGNANT_FLESH_WALL, ObfuscatedTooltipBlockItem::new);
-	public static final RegistryObject<ObfuscatedTooltipBlockItem> MALIGNANT_FLESH_VEINS = registerBlockItem(ModBlocks.MALIGNANT_FLESH_VEINS, ObfuscatedTooltipBlockItem::new);
-	public static final RegistryObject<ObfuscatedTooltipBlockItem> PRIMAL_BLOOM = registerBlockItem(ModBlocks.PRIMAL_BLOOM, ObfuscatedTooltipBlockItem::new);
-	public static final RegistryObject<ObfuscatedTooltipBlockItem> PRIMAL_ORIFICE = registerBlockItem(ModBlocks.PRIMAL_ORIFICE, ObfuscatedTooltipBlockItem::new);
-
-	//## Utility
-	//	public static final RegistryObject<SimpleBlockItem> VOICE_BOX = registerSimpleBlockItem(ModBlocks.VOICE_BOX, () -> createProperties());
-	public static final RegistryObject<SimpleBlockItem> IMPERMEABLE_MEMBRANE = registerSimpleBlockItem(ModBlocks.IMPERMEABLE_MEMBRANE);
-	public static final RegistryObject<SimpleBlockItem> BABY_PERMEABLE_MEMBRANE = registerSimpleBlockItem(ModBlocks.BABY_PERMEABLE_MEMBRANE);
-	public static final RegistryObject<SimpleBlockItem> ADULT_PERMEABLE_MEMBRANE = registerSimpleBlockItem(ModBlocks.ADULT_PERMEABLE_MEMBRANE);
-	public static final RegistryObject<SimpleBlockItem> PRIMAL_PERMEABLE_MEMBRANE = registerSimpleBlockItem(ModBlocks.PRIMAL_PERMEABLE_MEMBRANE);
-	public static final RegistryObject<SimpleBlockItem> UNDEAD_PERMEABLE_MEMBRANE = registerSimpleBlockItem(ModBlocks.UNDEAD_PERMEABLE_MEMBRANE);
-
-	//public static final RegistryObject<SimpleBlockItem> NEURAL_INTERCEPTOR = registerSimpleBlockItem(ModBlocks.NEURAL_INTERCEPTOR, ModRarities.VERY_RARE);
-
-	//## Misc
-	public static final RegistryObject<SimpleBlockItem> FLESH_LADDER = registerSimpleBlockItem(ModBlocks.FLESH_LADDER);
-	public static final RegistryObject<SimpleBlockItem> FLESH_FENCE = registerSimpleBlockItem(ModBlocks.FLESH_FENCE);
-	public static final RegistryObject<SimpleBlockItem> FLESH_FENCE_GATE = registerSimpleBlockItem(ModBlocks.FLESH_FENCE_GATE);
-	public static final RegistryObject<SimpleBlockItem> FLESH_IRIS_DOOR = registerSimpleBlockItem(ModBlocks.FLESH_IRIS_DOOR);
-	public static final RegistryObject<SimpleBlockItem> FLESH_DOOR = registerSimpleBlockItem(ModBlocks.FLESH_DOOR);
-	public static final RegistryObject<SimpleBlockItem> FULL_FLESH_DOOR = registerSimpleBlockItem(ModBlocks.FULL_FLESH_DOOR);
-	public static final RegistryObject<SimpleBlockItem> FLESH_SPIKE = registerSimpleBlockItem(ModBlocks.FLESH_SPIKE);
-	public static final RegistryObject<SimpleBlockItem> YELLOW_BIO_LANTERN = registerSimpleBlockItem(ModBlocks.YELLOW_BIO_LANTERN);
-	public static final RegistryObject<SimpleBlockItem> BLUE_BIO_LANTERN = registerSimpleBlockItem(ModBlocks.BLUE_BIO_LANTERN);
-	public static final RegistryObject<ObfuscatedTooltipBlockItem> PRIMORDIAL_BIO_LANTERN = registerBlockItem(ModBlocks.PRIMORDIAL_BIO_LANTERN, ObfuscatedTooltipBlockItem::new);
-	public static final RegistryObject<ObfuscatedTooltipBlockItem> BLOOMLIGHT = registerBlockItem(ModBlocks.BLOOMLIGHT, ObfuscatedTooltipBlockItem::new);
-	public static final RegistryObject<FleshChainBlockItem> TENDON_CHAIN = registerBlockItem(ModBlocks.TENDON_CHAIN, FleshChainBlockItem::new);
-	public static final RegistryObject<SimpleBlockItem> VIAL_HOLDER = registerSimpleBlockItem(ModBlocks.VIAL_HOLDER);
+	public static final RegistryObject<SimpleBlockItem> PRIMAL_FLESH_BLOCK = registerSimpleBlockItem(ModBlocks.PRIMAL_FLESH);
+	public static final RegistryObject<SimpleBlockItem> PRIMAL_FLESH_SLAB = registerSimpleBlockItem(ModBlocks.PRIMAL_FLESH_SLAB);
+	public static final RegistryObject<SimpleBlockItem> PRIMAL_FLESH_STAIRS = registerSimpleBlockItem(ModBlocks.PRIMAL_FLESH_STAIRS);
+	public static final RegistryObject<SimpleBlockItem> PRIMAL_FLESH_WALL = registerSimpleBlockItem(ModBlocks.PRIMAL_FLESH_WALL);
+	public static final RegistryObject<SimpleBlockItem> SMOOTH_PRIMAL_FLESH_BLOCK = registerSimpleBlockItem(ModBlocks.SMOOTH_PRIMAL_FLESH);
+	public static final RegistryObject<SimpleBlockItem> SMOOTH_PRIMAL_FLESH_SLAB = registerSimpleBlockItem(ModBlocks.SMOOTH_PRIMAL_FLESH_SLAB);
+	public static final RegistryObject<SimpleBlockItem> SMOOTH_PRIMAL_FLESH_STAIRS = registerSimpleBlockItem(ModBlocks.SMOOTH_PRIMAL_FLESH_STAIRS);
+	public static final RegistryObject<SimpleBlockItem> SMOOTH_PRIMAL_FLESH_WALL = registerSimpleBlockItem(ModBlocks.SMOOTH_PRIMAL_FLESH_WALL);
+	public static final RegistryObject<SimpleBlockItem> POROUS_PRIMAL_FLESH_BLOCK = registerSimpleBlockItem(ModBlocks.POROUS_PRIMAL_FLESH);
+	public static final RegistryObject<SimpleBlockItem> POROUS_PRIMAL_FLESH_SLAB = registerSimpleBlockItem(ModBlocks.POROUS_PRIMAL_FLESH_SLAB);
+	public static final RegistryObject<SimpleBlockItem> POROUS_PRIMAL_FLESH_STAIRS = registerSimpleBlockItem(ModBlocks.POROUS_PRIMAL_FLESH_STAIRS);
+	public static final RegistryObject<SimpleBlockItem> POROUS_PRIMAL_FLESH_WALL = registerSimpleBlockItem(ModBlocks.POROUS_PRIMAL_FLESH_WALL);
+	public static final RegistryObject<SimpleBlockItem> MALIGNANT_FLESH_BLOCK = registerSimpleBlockItem(ModBlocks.MALIGNANT_FLESH);
+	public static final RegistryObject<SimpleBlockItem> MALIGNANT_FLESH_SLAB = registerSimpleBlockItem(ModBlocks.MALIGNANT_FLESH_SLAB);
+	public static final RegistryObject<SimpleBlockItem> MALIGNANT_FLESH_STAIRS = registerSimpleBlockItem(ModBlocks.MALIGNANT_FLESH_STAIRS);
+	public static final RegistryObject<SimpleBlockItem> MALIGNANT_FLESH_WALL = registerSimpleBlockItem(ModBlocks.MALIGNANT_FLESH_WALL);
+	public static final RegistryObject<SimpleBlockItem> MALIGNANT_FLESH_VEINS = registerSimpleBlockItem(ModBlocks.MALIGNANT_FLESH_VEINS);
+	public static final RegistryObject<SimpleBlockItem> PRIMAL_BLOOM = registerSimpleBlockItem(ModBlocks.PRIMAL_BLOOM);
+	public static final RegistryObject<SimpleBlockItem> BLOOMLIGHT = registerSimpleBlockItem(ModBlocks.BLOOMLIGHT);
+	public static final RegistryObject<SimpleBlockItem> PRIMAL_ORIFICE = registerSimpleBlockItem(ModBlocks.PRIMAL_ORIFICE);
 
 	//# Spawn Eggs
 	public static final RegistryObject<ForgeSpawnEggItem> HUNGRY_FLESH_BLOB_SPAWN_EGG = registerSpawnEgg(ModEntityTypes.HUNGRY_FLESH_BLOB, 0xe9967a, 0xf6d2c6);
@@ -189,6 +208,20 @@ public final class ModItems {
 	public static final RegistryObject<ForgeSpawnEggItem> PRIMORDIAL_HUNGRY_FLESH_BLOB_SPAWN_EGG = registerSpawnEgg(ModEntityTypes.PRIMORDIAL_HUNGRY_FLESH_BLOB, 0x752144, 0x752144);
 
 	private ModItems() {}
+
+	public static <T extends Item> Stream<T> findItems(Class<T> clazz) {
+		return ModItems.ITEMS.getEntries().stream()
+				.map(RegistryObject::get)
+				.filter(clazz::isInstance)
+				.map(clazz::cast);
+	}
+
+	public static <T extends Item> Stream<RegistryObject<T>> findEntries(Class<T> clazz) {
+		//noinspection unchecked
+		return ModItems.ITEMS.getEntries().stream()
+				.filter(registryObject -> clazz.isInstance(registryObject.get()))
+				.map(registryObject -> (RegistryObject<T>) registryObject);
+	}
 
 	private static <T extends Item> RegistryObject<T> registerItem(String name, Function<Item.Properties, T> factory) {
 		return ITEMS.register(name, () -> factory.apply(createProperties()));
@@ -218,6 +251,46 @@ public final class ModItems {
 		return ITEMS.register(blockHolder.getId().getPath(), () -> factory.create(blockHolder.get(), createProperties().rarity(rarity)));
 	}
 
+	private static <M extends ArmorMaterial, I extends ArmorItem> RegistryObject<I> registerArmorHelmet(String name, M material, ArmorFactory<M, ArmorItem.Type, I> factory) {
+		return registerArmor(name + "_helmet", material, ArmorItem.Type.HELMET, factory);
+	}
+
+	private static <M extends ArmorMaterial, I extends ArmorItem> RegistryObject<I> registerArmorChestplate(String name, M material, ArmorFactory<M, ArmorItem.Type, I> factory) {
+		return registerArmor(name + "_chestplate", material, ArmorItem.Type.CHESTPLATE, factory);
+	}
+
+	private static <M extends ArmorMaterial, I extends ArmorItem> RegistryObject<I> registerArmorLeggings(String name, M material, ArmorFactory<M, ArmorItem.Type, I> factory) {
+		return registerArmor(name + "_leggings", material, ArmorItem.Type.LEGGINGS, factory);
+	}
+
+	private static <M extends ArmorMaterial, I extends ArmorItem> RegistryObject<I> registerArmorBoots(String name, M material, ArmorFactory<M, ArmorItem.Type, I> factory) {
+		return registerArmor(name + "_boots", material, ArmorItem.Type.BOOTS, factory);
+	}
+
+	private static <M extends ArmorMaterial, T extends ArmorItem.Type, I extends ArmorItem> RegistryObject<I> registerArmor(String name, M material, T type, ArmorFactory<M, T, I> factory) {
+		return ITEMS.register(name, () -> factory.create(material, type, createProperties()));
+	}
+
+	private static <M extends ArmorMaterial, I extends ArmorItem> RegistryObject<I> registerLivingArmorHelmet(String name, M material, int maxNutrients, LivingArmorFactory<M, ArmorItem.Type, I> factory) {
+		return registerLivingArmor(name + "_helmet", material, ArmorItem.Type.HELMET, maxNutrients, factory);
+	}
+
+	private static <M extends ArmorMaterial, I extends ArmorItem> RegistryObject<I> registerLivingArmorChestplate(String name, M material, int maxNutrients, LivingArmorFactory<M, ArmorItem.Type, I> factory) {
+		return registerLivingArmor(name + "_chestplate", material, ArmorItem.Type.CHESTPLATE, maxNutrients, factory);
+	}
+
+	private static <M extends ArmorMaterial, I extends ArmorItem> RegistryObject<I> registerLivingArmorLeggings(String name, M material, int maxNutrients, LivingArmorFactory<M, ArmorItem.Type, I> factory) {
+		return registerLivingArmor(name + "_leggings", material, ArmorItem.Type.LEGGINGS, maxNutrients, factory);
+	}
+
+	private static <M extends ArmorMaterial, I extends ArmorItem> RegistryObject<I> registerLivingArmorBoots(String name, M material, int maxNutrients, LivingArmorFactory<M, ArmorItem.Type, I> factory) {
+		return registerLivingArmor(name + "_boots", material, ArmorItem.Type.BOOTS, maxNutrients, factory);
+	}
+
+	private static <M extends ArmorMaterial, T extends ArmorItem.Type, I extends ArmorItem> RegistryObject<I> registerLivingArmor(String name, M material, T type, int maxNutrients, LivingArmorFactory<M, T, I> factory) {
+		return ITEMS.register(name, () -> factory.create(material, type, maxNutrients, createProperties().rarity(ModRarities.VERY_RARE)));
+	}
+
 	private static <T extends EntityType<? extends Mob>> RegistryObject<ForgeSpawnEggItem> registerSpawnEgg(RegistryObject<T> mobHolder, int primaryColor, int accentColor) {
 		return ITEMS.register(mobHolder.getId().getPath() + "_spawn_egg", () -> new ForgeSpawnEggItem(mobHolder, primaryColor, accentColor, createProperties()));
 	}
@@ -232,14 +305,6 @@ public final class ModItems {
 
 	private static RegistryObject<SimpleItem> registerSimpleItem(String name) {
 		return ITEMS.register(name, () -> new SimpleItem(createProperties()));
-	}
-
-	private static RegistryObject<MobLootItem> registerMobLootItem(String name, TagKey<EntityType<?>> lootSource) {
-		return ITEMS.register(name, () -> new MobLootItem(lootSource, createProperties()));
-	}
-
-	private static RegistryObject<MobLootItem> registerMobLootItem(String name, TagKey<EntityType<?>> lootSource, Rarity rarity) {
-		return ITEMS.register(name, () -> new MobLootItem(lootSource, createProperties().rarity(rarity)));
 	}
 
 	private static RegistryObject<SimpleItem> registerSimpleItem(String name, Rarity rarity) {
@@ -268,6 +333,14 @@ public final class ModItems {
 
 	interface IBlockItemFactory<T extends Block, I extends BlockItem> {
 		I create(T block, Item.Properties properties);
+	}
+
+	interface ArmorFactory<M extends ArmorMaterial, T extends ArmorItem.Type, I extends ArmorItem> {
+		I create(M material, T type, Item.Properties properties);
+	}
+
+	interface LivingArmorFactory<M extends ArmorMaterial, T extends ArmorItem.Type, I extends ArmorItem> {
+		I create(M material, T type, int maxNutrients, Item.Properties properties);
 	}
 
 }
