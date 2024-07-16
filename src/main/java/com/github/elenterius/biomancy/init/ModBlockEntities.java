@@ -12,7 +12,7 @@ import com.github.elenterius.biomancy.block.fleshkinchest.FleshkinChestBlockEnti
 import com.github.elenterius.biomancy.block.mawhopper.MawHopperBlockEntity;
 import com.github.elenterius.biomancy.block.membrane.BiometricMembraneBlockEntity;
 import com.github.elenterius.biomancy.block.modularlarynx.ModularLarynxBlockEntity;
-import com.github.elenterius.biomancy.block.ownable.OwnableBlockEntity;
+import com.github.elenterius.biomancy.api.ownable.OwnableBlockEntity;
 import com.github.elenterius.biomancy.block.storagesac.StorageSacBlockEntity;
 import com.github.elenterius.biomancy.block.tongue.TongueBlockEntity;
 import com.github.elenterius.biomancy.block.vialholder.VialHolderBlockEntity;

@@ -5,7 +5,7 @@ import com.github.elenterius.biomancy.entity.mob.ControllableMob;
 import com.github.elenterius.biomancy.entity.mob.FleshkinHumanoid;
 import com.github.elenterius.biomancy.item.ItemTooltipStyleProvider;
 import com.github.elenterius.biomancy.item.KeyPressListener;
-import com.github.elenterius.biomancy.ownable.OwnableMob;
+import com.github.elenterius.biomancy.api.ownable.OwnableMob;
 import com.github.elenterius.biomancy.styles.TextComponentUtil;
 import com.github.elenterius.biomancy.util.ComponentUtil;
 import net.minecraft.ChatFormatting;

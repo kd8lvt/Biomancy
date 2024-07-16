@@ -1,6 +1,6 @@
 package com.github.elenterius.biomancy.block.fleshkinchest;
 
-import com.github.elenterius.biomancy.block.ownable.OwnableContainerBlockEntity;
+import com.github.elenterius.biomancy.api.ownable.OwnableContainerBlockEntity;
 import com.github.elenterius.biomancy.init.ModBlockEntities;
 import com.github.elenterius.biomancy.init.ModDamageSources;
 import com.github.elenterius.biomancy.init.ModSoundEvents;

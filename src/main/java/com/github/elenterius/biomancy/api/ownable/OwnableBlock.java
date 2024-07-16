@@ -1,7 +1,7 @@
-package com.github.elenterius.biomancy.block.ownable;
+package com.github.elenterius.biomancy.api.ownable;
 
-import com.github.elenterius.biomancy.ownable.Ownable;
-import com.github.elenterius.biomancy.ownable.OwnableEntityBlock;
+import com.github.elenterius.biomancy.api.ownable.Ownable;
+import com.github.elenterius.biomancy.api.ownable.OwnableEntityBlock;
 import com.github.elenterius.biomancy.permission.Actions;
 import com.github.elenterius.biomancy.permission.IRestrictedInteraction;
 import net.minecraft.core.BlockPos;

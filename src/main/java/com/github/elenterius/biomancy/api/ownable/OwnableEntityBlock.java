@@ -1,6 +1,5 @@
-package com.github.elenterius.biomancy.ownable;
+package com.github.elenterius.biomancy.api.ownable;
 
-import com.github.elenterius.biomancy.block.ownable.OwnableBlockEntity;
 import com.github.elenterius.biomancy.client.util.ClientTextUtil;
 import com.github.elenterius.biomancy.permission.UserType;
 import com.github.elenterius.biomancy.styles.TextComponentUtil;

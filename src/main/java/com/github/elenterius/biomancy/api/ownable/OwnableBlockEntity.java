@@ -1,17 +1,14 @@
-package com.github.elenterius.biomancy.block.ownable;
+package com.github.elenterius.biomancy.api.ownable;
 
-import com.github.elenterius.biomancy.block.base.SimpleContainerBlockEntity;
-import com.github.elenterius.biomancy.ownable.Ownable;
-import com.github.elenterius.biomancy.permission.Actions;
+import com.github.elenterius.biomancy.block.base.SimpleSyncedBlockEntity;
+import com.github.elenterius.biomancy.init.ModBlockEntities;
+import com.github.elenterius.biomancy.api.ownable.Ownable;
 import com.github.elenterius.biomancy.permission.IRestrictedInteraction;
 import com.github.elenterius.biomancy.permission.UserType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -21,20 +18,19 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-public abstract class OwnableContainerBlockEntity extends SimpleContainerBlockEntity implements Ownable, IRestrictedInteraction {
+public class OwnableBlockEntity extends SimpleSyncedBlockEntity implements Ownable, IRestrictedInteraction {
 
 	public static final int MAX_USERS = 10;
 	private final HashMap<UUID, UserType> users = new HashMap<>(6);
 	@Nullable
 	private UUID ownerId;
 
-	protected OwnableContainerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
-		super(type, pos, state);
+	public OwnableBlockEntity(BlockPos pos, BlockState state) {
+		this(ModBlockEntities.OWNABLE_BE.get(), pos, state);
 	}
 
-	@Override
-	public boolean canPlayerOpenContainer(Player player) {
-		return super.canPlayerOpenContainer(player) && isActionAllowed(player, Actions.USE_BLOCK);
+	protected OwnableBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 	}
 
 	@Override
@@ -89,26 +85,7 @@ public abstract class OwnableContainerBlockEntity extends SimpleContainerBlockEn
 		setChanged();
 	}
 
-	protected void syncToClient() {
-		if (level != null && !level.isClientSide) {
-			BlockState state = getBlockState();
-			level.sendBlockUpdated(getBlockPos(), state, state, Block.UPDATE_CLIENTS);
-		}
-	}
-
 	@Override
-	public CompoundTag getUpdateTag() {
-		CompoundTag tag = new CompoundTag();
-		saveForSyncToClient(tag);
-		return tag;
-	}
-
-	@Override
-	@Nullable
-	public ClientboundBlockEntityDataPacket getUpdatePacket() {
-		return ClientboundBlockEntityDataPacket.create(this);
-	}
-
 	protected void saveForSyncToClient(CompoundTag tag) {
 		if (ownerId != null) tag.putUUID("OwnerUUID", ownerId);
 
