@@ -58,7 +58,7 @@ public interface Serum {
 
 	};
 
-	static CompoundTag getDataTag(ItemStack stack) {
+	default CompoundTag getDataTag(ItemStack stack) {
 		return stack.getOrCreateTag().getCompound(DATA_TAG_KEY);
 	}
 

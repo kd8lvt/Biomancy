@@ -13,11 +13,11 @@ public interface SerumInjector extends ItemLike {
 	Serum getSerum(ItemStack stack);
 
 	default boolean canInteractWithPlayerSelf(ItemStack stack, Player player) {
-		return getSerum(stack).canAffectPlayerSelf(Serum.getDataTag(stack), player);
+		return getSerum(stack).canAffectPlayerSelf(getSerum(stack).getDataTag(stack), player);
 	}
 
 	default boolean canInteractWithLivingTarget(ItemStack stack, @Nullable Player player, LivingEntity target) {
-		return getSerum(stack).canAffectEntity(Serum.getDataTag(stack), player, target);
+		return getSerum(stack).canAffectEntity(getSerum(stack).getDataTag(stack), player, target);
 	}
 
 }

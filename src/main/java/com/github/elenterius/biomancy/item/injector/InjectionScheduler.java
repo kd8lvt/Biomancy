@@ -31,6 +31,9 @@ final class InjectionScheduler {
 		CompoundTag tag = stack.getOrCreateTag();
 		tag.putInt(DELAY_KEY, delayInTicks);
 		tag.putLong(TIMESTAMP_KEY, player.level().getGameTime());
+		CompoundTag serumData = new CompoundTag();
+		Serum.copyDataTag(injector.getSerumItemStack(stack).getOrCreateTag(),serumData);
+		tag.put(Serum.DATA_TAG_KEY,serumData);
 	}
 
 	public static void tick(ServerLevel level, InjectorItem injector, ItemStack stack, ServerPlayer player) {
@@ -43,6 +46,7 @@ final class InjectionScheduler {
 			performScheduledSerumInjection(level, injector, stack, player);
 			tag.remove(DELAY_KEY);
 			tag.remove(TIMESTAMP_KEY);
+			tag.remove(Serum.DATA_TAG_KEY);
 		}
 	}
 
@@ -78,10 +82,10 @@ final class InjectionScheduler {
 			}
 
 			if (host == victim) {
-				serum.affectPlayerSelf(Serum.getDataTag(stack), player);
+				serum.affectPlayerSelf(serum.getDataTag(stack), player);
 			}
 			else {
-				serum.affectEntity(level, Serum.getDataTag(stack), player, target);
+				serum.affectEntity(level, serum.getDataTag(stack), player, target);
 			}
 
 			injector.consumeSerum(stack, player);

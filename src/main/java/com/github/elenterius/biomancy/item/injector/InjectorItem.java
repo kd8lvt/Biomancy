@@ -1,5 +1,6 @@
 package com.github.elenterius.biomancy.item.injector;
 
+import com.github.elenterius.biomancy.BiomancyMod;
 import com.github.elenterius.biomancy.api.serum.Serum;
 import com.github.elenterius.biomancy.api.serum.SerumContainer;
 import com.github.elenterius.biomancy.api.serum.SerumInjector;
@@ -109,7 +110,7 @@ public class InjectorItem extends Item implements SerumInjector, ItemTooltipStyl
 
 	private static boolean dispenserAffectEntity(ServerLevel level, BlockPos pos, Serum serum, ItemStack injectorStack, InjectorItem injectorItem, LivingEntity target) {
 		if (CombatUtil.canPierceThroughArmor(injectorStack, target, null)) {
-			CompoundTag dataTag = Serum.getDataTag(injectorStack);
+			CompoundTag dataTag = serum.getDataTag(injectorStack);
 			if (serum.canAffectEntity(dataTag, null, target)) {
 				serum.affectEntity(level, dataTag, null, target);
 				injectorItem.consumeSerum(injectorStack, null);

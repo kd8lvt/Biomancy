@@ -1,19 +1,18 @@
 package com.github.elenterius.biomancy.block.biolab;
 
+import com.github.elenterius.biomancy.BiomancyMod;
 import com.github.elenterius.biomancy.block.base.MachineBlock;
 import com.github.elenterius.biomancy.block.base.MachineBlockEntity;
 import com.github.elenterius.biomancy.client.util.ClientLoopingSoundHelper;
 import com.github.elenterius.biomancy.crafting.recipe.BioLabRecipe;
 import com.github.elenterius.biomancy.crafting.recipe.IngredientStack;
 import com.github.elenterius.biomancy.crafting.recipe.SimpleRecipeType;
-import com.github.elenterius.biomancy.init.ModBlockEntities;
-import com.github.elenterius.biomancy.init.ModCapabilities;
-import com.github.elenterius.biomancy.init.ModRecipes;
-import com.github.elenterius.biomancy.init.ModSoundEvents;
+import com.github.elenterius.biomancy.init.*;
 import com.github.elenterius.biomancy.inventory.BehavioralInventory;
 import com.github.elenterius.biomancy.inventory.SimpleInventory;
 import com.github.elenterius.biomancy.inventory.itemhandler.HandlerBehaviors;
 import com.github.elenterius.biomancy.menu.BioLabMenu;
+import com.github.elenterius.biomancy.serum.CompoundSerum;
 import com.github.elenterius.biomancy.styles.TextComponentUtil;
 import com.github.elenterius.biomancy.util.ILoopingSoundHelper;
 import com.github.elenterius.biomancy.util.SoundUtil;
@@ -31,9 +30,16 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.PotionBrewing;
+import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.common.brewing.BrewingRecipeRegistry;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.capability.IFluidHandler;
@@ -52,6 +58,8 @@ import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class BioLabBlockEntity extends MachineBlockEntity<BioLabRecipe, Container, BioLabStateData> implements MenuProvider, GeoBlockEntity {
@@ -59,6 +67,8 @@ public class BioLabBlockEntity extends MachineBlockEntity<BioLabRecipe, Containe
 	public static final int FUEL_SLOTS = 1;
 	public static final int INPUT_SLOTS = BioLabRecipe.MAX_INGREDIENTS + BioLabRecipe.MAX_REACTANT;
 	public static final int OUTPUT_SLOTS = 1;
+	private static final ArrayList<Item> bannedAlchemyInputs = new ArrayList<>(List.of(Items.GUNPOWDER,Items.DRAGON_BREATH,Items.TURTLE_HELMET));
+
 
 	public static final int MAX_FUEL = 1_000;
 
@@ -89,7 +99,7 @@ public class BioLabBlockEntity extends MachineBlockEntity<BioLabRecipe, Containe
 		optionalCombinedInventory = createCombinedInventory();
 
 		fuelHandler = FuelHandler.createNutrientFuelHandler(MAX_FUEL, this::setChanged);
-		stateData = new BioLabStateData(fuelHandler);
+		stateData = new BioLabStateData(fuelHandler,worldPosition);
 		optionalFluidConsumer = LazyOptional.of(() -> new FluidFuelConsumerHandler(fuelHandler));
 	}
 
@@ -153,10 +163,59 @@ public class BioLabBlockEntity extends MachineBlockEntity<BioLabRecipe, Containe
 		return outputInventory.getItem(0).isEmpty() || outputInventory.doesItemStackFit(0, stackToCraft);
 	}
 
+
+	/*
+	 * Alright time to do some bootleg runtime recipe spoofing, because I have zero clue how to do it otherwise without flooding the registry with nonsense! Yay! >.>
+	 * Ugh, after modifying like 4 other classes that seem completely unrelated at first glance, this seems to work.
+	 * But please for the love of the Makyr's tell me how to do this in a less janktastic way so I can fix it...
+	 * I hate this method. The whole thing's vibes are absolutely vile.
+	 * I've spent literally four days getting JUST THIS METHOD to work. I don't like the feature as a whole anymore because of this stupid block of code.
+	 * Don't get me wrong - I like the idea, I just don't like how much mental gymnastics I had to do to produce such a seemingly simple feature 🙃
+	 * -Kd
+	 */
+	protected @Nullable BioLabRecipe detectAndGenerateAlchemicalSerumRecipe(Level level) {
+		ArrayList<Item> REQUIRED_STATIC_REAGENTS = new ArrayList<>(List.of(ModItems.EXOTIC_DUST.get(),ModItems.HORMONE_SECRETION.get())); //Static for now because lazy
+		HashMap<String,ItemStack> taggedInputs = new HashMap<>();
+		ArrayList<ItemStack> inputs = new ArrayList<>();
+		for (int i=0;i< inputInventory.getContainerSize();i++) {
+			if (inputInventory.getItem(i).is(ModItems.ALCHEMICAL_SERUM.get()) && !taggedInputs.containsKey("SERUM")) {taggedInputs.put("SERUM", inputInventory.getItem(i));}
+			if (!bannedAlchemyInputs.contains(inputInventory.getItem(i).getItem())) {
+				inputs.add(inputInventory.getItem(i));
+				continue;
+			}
+			return null;
+		}
+
+		//Do the inputs resemble an "alchemy" recipe?
+		boolean DOES_RECIPE_HAVE_REQUIRED_STATIC_REAGENTS = REQUIRED_STATIC_REAGENTS.stream().allMatch(reagent->
+			inputs.stream().anyMatch(stack->
+				stack.is(reagent) //I'd do .containsAll() but unfortunately Item != ItemStack, and Count can prevent equality.
+			)
+		);
+		if (!DOES_RECIPE_HAVE_REQUIRED_STATIC_REAGENTS) return null;
+
+		ArrayList<ItemStack> filteredInputs = new ArrayList<>(inputs.stream().filter(stack-> BrewingRecipeRegistry.isValidInput(stack) || PotionBrewing.hasMix(PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.AWKWARD),stack)).toList());
+		if (filteredInputs.isEmpty()) return null;
+		//If this was 1.20.3, the `or` operation above wouldn't have to be there, because potions are data-driven, and instead of Forge letting us register directly to Vanilla's EXISTING POTION REGISTRY they made their own.
+		//Totally unrelated, but NeoForge is a fantastic change of pace btw.
+		taggedInputs.put("INPUT",filteredInputs.get(0));
+		ItemStack result = taggedInputs.get("SERUM").copy();
+		result.setCount(1);
+		result = CompoundSerum.addIngredient(result,taggedInputs.get("INPUT"));
+		return new BioLabRecipe(
+				BiomancyMod.createRL("temp_alchemy"),
+				result,
+				CompoundSerum.calculateCraftingTime(result),
+				CompoundSerum.calculateNutrientCost(result),
+				inputs.stream().map(stack->new IngredientStack(Ingredient.of(stack),1)).toList(), //Why can I not just throw ItemStacks at BioLabRecipe and call it a day. Why do I need to do this.
+				Ingredient.of(ModItems.EXOTIC_DUST.get())
+		);
+	}
+
 	@Nullable
 	@Override
 	protected BioLabRecipe resolveRecipeFromInput(Level level) {
-		return RECIPE_TYPE.get().getRecipeFromContainer(level, inputInventory).orElse(null);
+		return RECIPE_TYPE.get().getRecipeFromContainer(level, inputInventory).orElse(detectAndGenerateAlchemicalSerumRecipe(level));
 	}
 
 	@Override
