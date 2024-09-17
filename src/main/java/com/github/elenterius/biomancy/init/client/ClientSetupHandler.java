@@ -8,6 +8,7 @@ import com.github.elenterius.biomancy.client.gui.tooltip.EmptyLineClientComponen
 import com.github.elenterius.biomancy.client.gui.tooltip.HrTooltipClientComponent;
 import com.github.elenterius.biomancy.client.gui.tooltip.StorageSacTooltipClientComponent;
 import com.github.elenterius.biomancy.client.particle.BloodDripParticle;
+import com.github.elenterius.biomancy.client.particle.CustomGlowParticle;
 import com.github.elenterius.biomancy.client.particle.ParticleProviders;
 import com.github.elenterius.biomancy.client.render.block.bioforge.BioForgeRenderer;
 import com.github.elenterius.biomancy.client.render.block.biolab.BioLabRenderer;
@@ -36,6 +37,7 @@ import com.github.elenterius.biomancy.item.weapon.gun.GunbladeItem;
 import com.github.elenterius.biomancy.tooltip.EmptyLineTooltipComponent;
 import com.github.elenterius.biomancy.tooltip.HrTooltipComponent;
 import com.github.elenterius.biomancy.tooltip.StorageSacTooltipComponent;
+import com.github.elenterius.biomancy.util.TransliterationUtil;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.particle.AttackSweepParticle;
@@ -76,6 +78,8 @@ public final class ClientSetupHandler {
 		setBlockRenderLayers();
 
 		event.enqueueWork(ClientSetupHandler::onPostSetup);
+
+		TransliterationUtil.init();
 
 		ModsCompatHandler.onBiomancyClientSetup(event);
 	}
@@ -141,6 +145,10 @@ public final class ClientSetupHandler {
 		event.registerSpriteSet(ModParticleTypes.DRIPPING_ACID.get(), ParticleProviders.AcidHangProvider::new);
 		event.registerSpriteSet(ModParticleTypes.FALLING_ACID.get(), ParticleProviders.AcidFallProvider::new);
 		event.registerSpriteSet(ModParticleTypes.LANDING_ACID.get(), ParticleProviders.AcidLandProvider::new);
+		event.registerSpriteSet(ModParticleTypes.PINK_GLOW.get(), sprites -> new CustomGlowParticle.TwoColorProvider(sprites, 0xf740fd, 0xff6fff));
+		event.registerSpriteSet(ModParticleTypes.LIGHT_GREEN_GLOW.get(), sprites -> new CustomGlowParticle.TwoColorProvider(sprites, 0x53ff53, 0x64e986));
+		event.registerSpriteSet(ModParticleTypes.HOSTILE.get(), CustomGlowParticle.GenericProvider::new);
+		event.registerSpriteSet(ModParticleTypes.BIOHAZARD.get(), sprites -> new CustomGlowParticle.TwoColorProvider(sprites, 0xab274f, 0x7e2a43));
 	}
 
 	@SubscribeEvent
