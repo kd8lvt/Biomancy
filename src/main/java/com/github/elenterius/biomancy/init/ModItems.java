@@ -82,7 +82,6 @@ public final class ModItems {
 	public static final RegistryObject<SerumItem> CLEANSING_SERUM = registerSerumItem(ModSerums.CLEANSING_SERUM);
 	public static final RegistryObject<SerumItem> INSOMNIA_CURE = registerSerumItem(ModSerums.INSOMNIA_CURE);
 	public static final RegistryObject<SerumItem> FRENZY_SERUM = registerSerumItem(ModSerums.FRENZY_SERUM);
-	public static final RegistryObject<SerumItem> ALCHEMICAL_SERUM = registerSerumItem(ModSerums.ALCHEMICAL_SERUM);
 
 	//## Special
 	public static final RegistryObject<SimpleItem> PRIMORDIAL_CORE = registerSimpleItem("primordial_core", ModRarities.VERY_RARE);

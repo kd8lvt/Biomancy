@@ -1,6 +1,5 @@
 package com.github.elenterius.biomancy.crafting.state;
 
-import com.github.elenterius.biomancy.BiomancyMod;
 import com.github.elenterius.biomancy.crafting.recipe.ProcessingRecipe;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -10,7 +9,6 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
 
-import java.util.Objects;
 import java.util.Optional;
 
 public abstract class RecipeCraftingStateData<T extends ProcessingRecipe<C>, C extends Container> implements ContainerData {
@@ -29,7 +27,7 @@ public abstract class RecipeCraftingStateData<T extends ProcessingRecipe<C>, C e
 	public int nutrientsCost;
 
 	private CraftingState craftingState = CraftingState.NONE;
-	protected ResourceLocation recipeId;
+	private ResourceLocation recipeId;
 
 	public CraftingState getCraftingState() {
 		return craftingState;

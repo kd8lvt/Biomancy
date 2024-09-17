@@ -74,7 +74,6 @@ public class ModItemModelProvider extends ItemModelProvider {
 		serumItem(ModItems.CLEANSING_SERUM);
 		serumItem(ModItems.INSOMNIA_CURE);
 		serumItem(ModItems.FRENZY_SERUM);
-		serumItem(ModItems.ALCHEMICAL_SERUM);
 
 		serumItem(ModItems.ORGANIC_COMPOUND);
 		serumItem(ModItems.UNSTABLE_COMPOUND);

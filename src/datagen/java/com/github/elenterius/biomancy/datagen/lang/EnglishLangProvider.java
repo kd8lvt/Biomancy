@@ -238,7 +238,6 @@ public class EnglishLangProvider extends AbstractLangProvider {
 		addTooltip("ammo", "Ammo");
 		addTooltip("reload_time", "Reload Time");
 		addTooltip("projectile_damage", "Projectile Damage");
-		addTooltip("when_injected","When Injected");
 
 		add(LivingToolState.getTooltipTranslationKey(), "The Tool is %1$s");
 		add(LivingToolState.BROKEN.getTranslationKey(), "Broken");
@@ -536,8 +535,7 @@ public class EnglishLangProvider extends AbstractLangProvider {
 		addSerumItem(ModItems.BREEDING_STIMULANT, "Breeding Stimulant", "Potent drug that that temporarily forces animals into a state of hyper-fertility, allowing them to reproduce repeatedly for a short time.\nUse with caution, as this stimulant may lead to undesirable mutations in the offspring.");
 		addSerumItem(ModItems.ABSORPTION_BOOST, "Absorption Stimulant", "Grants stackable absorption health points to Mobs and Players.");
 		addSerumItem(ModItems.INSOMNIA_CURE, "Insomnia Cure", "Resets the last slept time, no need to sleep for quite some time.\nCoffee who?");
-		addSerumItem(ModItems.FRENZY_SERUM, "Frenzy Serum", "Potent stackable drug that greatly boosts your attack damage and speed at the cost of withdrawal symptoms. Increases hostility and aggression of affected mobs. Rabbits seems to be affected in an irreversible manner.\nCommon side effects after stoppage of use include weakness, sluggish movement and nausea. Continue the use to alleviate the withdrawal or try your luck with sugary foods.");
-		addSerumItem(ModItems.ALCHEMICAL_SERUM, "Alchemical Serum", "Through intricate Bio-Lab use, one can make a serum that replicates (and even improves upon) generic potion brewing.");
+		addSerumItem(ModItems.FRENZY_SERUM, "Frenzy Serum", "Potent stackable drug that greatly boost your attack damage and speed at the cost of withdrawal symptoms. Increases hostility and aggression of affected mobs. Rabbits seems to be affected in an irreversible manner.\nCommon side effects after stoppage of use include weakness, sluggish movement and nausea. Continue the use to alleviate the withdrawal or try your luck with sugary foods.");
 
 		addBannerPatternItem(ModItems.MASCOT_BANNER_PATTERNS, "Banner Pattern", "Biomancy Mascot");
 
