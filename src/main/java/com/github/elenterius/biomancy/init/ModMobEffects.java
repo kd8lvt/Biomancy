@@ -15,7 +15,7 @@ public final class ModMobEffects {
 	public static final DeferredRegister<MobEffect> EFFECTS = DeferredRegister.create(ForgeRegistries.MOB_EFFECTS, BiomancyMod.MOD_ID);
 
 	public static final RegistryObject<CorrosiveEffect> CORROSIVE = EFFECTS.register("corrosive", () -> new CorrosiveEffect(MobEffectCategory.HARMFUL, 0x39FF14));
-	public static final RegistryObject<StatusEffect> ARMOR_SHRED = EFFECTS.register("armor_shred", () -> new ArmorShredEffect(MobEffectCategory.HARMFUL, 20, 0x909090)
+	public static final RegistryObject<ArmorShredEffect> ARMOR_SHRED = EFFECTS.register("armor_shred", () -> new ArmorShredEffect(MobEffectCategory.HARMFUL, 20, 0x909090)
 			.addModifier(Attributes.ARMOR, "a15ed03e-c5db-4cf8-a0f5-4eb4657bb731", -1f, AttributeModifier.Operation.ADDITION));
 	public static final RegistryObject<BleedEffect> BLEED = EFFECTS.register("bleed", () -> new BleedEffect(MobEffectCategory.HARMFUL, 0x8a0303, 2));
 
@@ -26,15 +26,17 @@ public final class ModMobEffects {
 	public static final RegistryObject<LibidoEffect> LIBIDO = EFFECTS.register("libido", () -> new LibidoEffect(MobEffectCategory.NEUTRAL, 0xe06a78));
 	public static final RegistryObject<DrowsyEffect> DROWSY = EFFECTS.register("drowsy", () -> new DrowsyEffect(MobEffectCategory.NEUTRAL, 0x9b70b2));
 
-	public static final RegistryObject<AdrenalineEffect> ADRENALINE_RUSH = EFFECTS.register("adrenaline_rush", () -> new AdrenalineEffect(MobEffectCategory.BENEFICIAL, 0xff9532)
-			.addAttackDamageModifier("1f1fb00f-d6bc-4b42-8533-422054cea63d", 4f, 0, AttributeModifier.Operation.ADDITION)
+	public static final RegistryObject<AttackDamageEffect> FRENZY = EFFECTS.register("frenzy", () -> new FrenzyEffect(MobEffectCategory.BENEFICIAL, 0xd1001c)
+			.addAttackDamageModifier("1f1fb00f-d6bc-4b42-8533-422054cea63d", 6f, 0, AttributeModifier.Operation.ADDITION) // Strength ~II
 			.addModifier(Attributes.MOVEMENT_SPEED, "14e2a39c-abb5-43a4-9449-522eec57ff2e", 0.225f, AttributeModifier.Operation.MULTIPLY_TOTAL)
 			.addModifier(Attributes.ATTACK_SPEED, "08a20d5b-60ce-4769-9e67-71cab0abe989", 0.175f, AttributeModifier.Operation.MULTIPLY_TOTAL));
 
-	public static final RegistryObject<AdrenalineEffect> ADRENAL_FATIGUE = EFFECTS.register("adrenal_fatigue", () -> new AdrenalineEffect(MobEffectCategory.HARMFUL, 0x60443f)
-			.addAttackDamageModifier("8dadcbe5-9098-4545-b07c-3e9120c84232", -4, 0, AttributeModifier.Operation.ADDITION)
-			.addModifier(Attributes.MOVEMENT_SPEED, "0f1be88c-cbb2-455c-8559-0b420caa980d", -0.225f, AttributeModifier.Operation.MULTIPLY_TOTAL)
-			.addModifier(Attributes.ATTACK_SPEED, "ab116bd1-196b-4bf8-a136-6c24e7c0e80d", -0.125f, AttributeModifier.Operation.MULTIPLY_TOTAL));
+	public static final RegistryObject<WithdrawalEffect> WITHDRAWAL = EFFECTS.register("withdrawal", () -> new WithdrawalEffect(0x5c4b88)
+			.addAttackDamageModifier("8dadcbe5-9098-4545-b07c-3e9120c84232", -3, 0, AttributeModifier.Operation.ADDITION)
+			.addModifier(Attributes.MOVEMENT_SPEED, "0f1be88c-cbb2-455c-8559-0b420caa980d", -0.1125f, AttributeModifier.Operation.MULTIPLY_TOTAL)
+			.addModifier(Attributes.ATTACK_SPEED, "ab116bd1-196b-4bf8-a136-6c24e7c0e80d", -0.0625f, AttributeModifier.Operation.MULTIPLY_TOTAL));
+
+	public static final RegistryObject<StatusEffect> PRIMORDIAL_INFESTATION = EFFECTS.register("primordial_infestation", () -> new StatusEffect(MobEffectCategory.HARMFUL, 0xbe3ee1, false));
 
 	private ModMobEffects() {}
 

@@ -55,21 +55,21 @@ public class EnglishLangProvider extends AbstractLangProvider {
 
 		if (!itemsToTranslate.isEmpty()) {
 			for (Item item : itemsToTranslate) {
-				LOGGER.error(LOG_MARKER, "Missing translation for item '{}'", item);
+				LOGGER.error(LOG_MARKER, "Missing {} translation for item '{}'", languageLocale, item);
 			}
 			isAnyMissing = true;
 		}
 
 		if (!blocksToTranslate.isEmpty()) {
 			for (Block block : blocksToTranslate) {
-				LOGGER.error(LOG_MARKER, "Missing translation for block '{}'", block);
+				LOGGER.error(LOG_MARKER, "Missing {} translation for block '{}'", languageLocale, block);
 			}
 			isAnyMissing = true;
 		}
 
 		if (!serumsToTranslate.isEmpty()) {
 			for (Serum serum : serumsToTranslate) {
-				LOGGER.error(LOG_MARKER, "Missing translation for serum '{}'", serum);
+				LOGGER.error(LOG_MARKER, "Missing {} translation for serum '{}'", languageLocale, serum);
 			}
 			isAnyMissing = true;
 		}
@@ -347,6 +347,18 @@ public class EnglishLangProvider extends AbstractLangProvider {
 		addSound(ModSoundEvents.FLESH_BLOB_AMBIENT, "Flesh Blob Ambient");
 		addSound(ModSoundEvents.FLESH_BLOB_GROWL, "Flesh Blob Growls");
 		addSound(ModSoundEvents.FLESH_BLOB_MEW_PURR, "Flesh Blob Purrs");
+		addSound(ModSoundEvents.FLESH_COW_AMBIENT, "Flesh Cow moos");
+		addSound(ModSoundEvents.FLESH_COW_HURT, "Flesh Cow hurts");
+		addSound(ModSoundEvents.FLESH_COW_DEATH, "Flesh Cow dies");
+		addSound(ModSoundEvents.FLESH_SHEEP_AMBIENT, "Flesh Sheep baahs");
+		addSound(ModSoundEvents.FLESH_SHEEP_HURT, "Flesh Sheep hurts");
+		addSound(ModSoundEvents.FLESH_SHEEP_DEATH, "Flesh Sheep dies");
+		addSound(ModSoundEvents.FLESH_PIG_AMBIENT, "Flesh Pig oinks");
+		addSound(ModSoundEvents.FLESH_PIG_HURT, "Flesh Pig hurts");
+		addSound(ModSoundEvents.FLESH_PIG_DEATH, "Flesh Pig dies");
+		addSound(ModSoundEvents.FLESH_CHICKEN_AMBIENT, "Flesh Chicken clucks");
+		addSound(ModSoundEvents.FLESH_CHICKEN_HURT, "Flesh Chicken hurts");
+		addSound(ModSoundEvents.FLESH_CHICKEN_DEATH, "Flesh Chicken dies");
 	}
 
 	private void addDamageTranslations() {
@@ -374,6 +386,11 @@ public class EnglishLangProvider extends AbstractLangProvider {
 				"%1$s was drained of blood by %2$s",
 				"%1$s was blood let by %2$s using %3$s"
 		);
+		addDeathMessage(ModDamageTypes.SLASH,
+				"%1$s was shredded to ribbons",
+				"%1$s was ripped apart by %2$s",
+				"%1$s was eviscerate by %2$s using %3$s"
+		);
 
 		addDeathMessage(ModDamageTypes.TOOTH_PROJECTILE, "[WIP]",
 				"[WIP] %1$s was forcefully implanted with teeth by %2$s",
@@ -391,6 +408,12 @@ public class EnglishLangProvider extends AbstractLangProvider {
 		add(Items.SPLASH_POTION.getDescriptionId() + ".effect." + suffix, "Gastric Splash-Juice");
 		add(Items.LINGERING_POTION.getDescriptionId() + ".effect." + suffix, "Gastric Linger-Juice");
 		add(Items.TIPPED_ARROW.getDescriptionId() + ".effect." + suffix, "Arrow of Gastric Juice");
+
+		suffix = ModPotions.PRIMORDIAL_INFESTATION.getId().toLanguageKey();
+		add(Items.POTION.getDescriptionId() + ".effect." + suffix, "Potion of Primordial Infestation");
+		add(Items.SPLASH_POTION.getDescriptionId() + ".effect." + suffix, "Splash Potion of Primordial Infestation");
+		add(Items.LINGERING_POTION.getDescriptionId() + ".effect." + suffix, "Lingering Potion of Primordial Infestation");
+		add(Items.TIPPED_ARROW.getDescriptionId() + ".effect." + suffix, "Arrow of Primordial Infestation");
 	}
 
 	private void addStatusEffectTranslations() {
@@ -401,9 +424,9 @@ public class EnglishLangProvider extends AbstractLangProvider {
 		addEffect(ModMobEffects.ESSENCE_ANEMIA, "Essence Anemia");
 		addEffect(ModMobEffects.DROWSY, "Drowsy");
 		addEffect(ModMobEffects.DESPOIL, "Despoil");
-		addEffect(ModMobEffects.ESSENCE_AMENIA,"Essence Amenia");
-		addEffect(ModMobEffects.ADRENALINE_RUSH,"Adrenaline Rush");
-		addEffect(ModMobEffects.ADRENAL_FATIGUE,"Adrenal Fatigue");
+		addEffect(ModMobEffects.FRENZY, "Frenzy");
+		addEffect(ModMobEffects.WITHDRAWAL, "Withdrawal");
+		addEffect(ModMobEffects.PRIMORDIAL_INFESTATION, "Primordial Infestation");
 	}
 
 	private void addEnchantmentTranslations() {
@@ -492,12 +515,12 @@ public class EnglishLangProvider extends AbstractLangProvider {
 		addItem(ModItems.THORN_SHIELD, "The Thorn", "Cute but prickly shield.");
 
 		addItem(ModItems.ESSENCE_EXTRACTOR, "Essence Extractor", "Primed Suck, slurps essence from its victims.");
-		addItem(ModItems.ESSENCE, "Essence", "Extracted life essence from a Mob. Contains sequences of genetic information.");
+		addItem(ModItems.ESSENCE, "Essence", "Extracted life essence from a Mob. Contains sequences of genetic information.\n\nCan be used on various blocks that are picky about their users.");
 		add(ModItems.ESSENCE.get().getDescriptionId() + ".mob", "%1$s Essence");
 		add(ModItems.ESSENCE.get().getDescriptionId() + ".unique_mob", "Unique %1$s Essence");
 
 		addItem(ModItems.ORGANIC_COMPOUND, "Organic Compound", "Slimy substance made of bile infused with nutrients.");
-		addItem(ModItems.UNSTABLE_COMPOUND, "Unstable Compound", "Very unstable and reactive substance. Seems like it will combust if it comes in contact with just about anything else.");
+		addItem(ModItems.UNSTABLE_COMPOUND, "Unstable Compound", "Very unstable and reactive substance. Seems like it will combust if it comes in contact with just about anything else.\nThe explosion is highly incendiary and has been known to liquefy magma blocks.");
 		addItem(ModItems.EXOTIC_COMPOUND, "Exotic Compound", "Substance of a questionable nature, comprised of exotic material and other trace elements.");
 		addItem(ModItems.GENETIC_COMPOUND, "Genetic Compound", "Cocktail of various hormones, nutrients and organic elements. It seems useful for producing potent stimulants.");
 		addItem(ModItems.CORROSIVE_ADDITIVE, "Corrosive Additive", "A highly corrosive fluid that seems useful for alchemically burning away organic material, or weakening the bonds of complex substances.");
@@ -509,9 +532,10 @@ public class EnglishLangProvider extends AbstractLangProvider {
 		addSerumItem(ModItems.SHRINKING_SERUM, "Shrinking Serum", "Shrinks Slimes, Magma Cubes and Flesh Blobs.\n\n(If Pehkui is installed you can shrink yourself and all Mobs)");
 
 		addSerumItem(ModItems.CLEANSING_SERUM, "Cleansing Serum", "Burns away all foreign substances inside a creature.\nVery effective on sticky status effects that refuse to be healed with milk.");
-		addSerumItem(ModItems.BREEDING_STIMULANT, "Breeding Stimulant", "Makes Animals hyper-fertile, making them able to repeatedly reproduce for a short time.");
+		addSerumItem(ModItems.BREEDING_STIMULANT, "Breeding Stimulant", "Potent drug that that temporarily forces animals into a state of hyper-fertility, allowing them to reproduce repeatedly for a short time.\nUse with caution, as this stimulant may lead to undesirable mutations in the offspring.");
 		addSerumItem(ModItems.ABSORPTION_BOOST, "Absorption Stimulant", "Grants stackable absorption health points to Mobs and Players.");
 		addSerumItem(ModItems.INSOMNIA_CURE, "Insomnia Cure", "Resets the last slept time, no need to sleep for quite some time.\nCoffee who?");
+		addSerumItem(ModItems.FRENZY_SERUM, "Frenzy Serum", "Potent stackable drug that greatly boost your attack damage and speed at the cost of withdrawal symptoms. Increases hostility and aggression of affected mobs. Rabbits seems to be affected in an irreversible manner.\nCommon side effects after stoppage of use include weakness, sluggish movement and nausea. Continue the use to alleviate the withdrawal or try your luck with sugary foods.");
 
 		addBannerPatternItem(ModItems.MASCOT_BANNER_PATTERNS, "Banner Pattern", "Biomancy Mascot");
 
@@ -520,6 +544,12 @@ public class EnglishLangProvider extends AbstractLangProvider {
 		addItem(ModItems.LEGACY_FLESH_BLOB_SPAWN_EGG, "Legacy Flesh Blob Spawn Egg");
 		addItem(ModItems.PRIMORDIAL_FLESH_BLOB_SPAWN_EGG, "Primordial Flesh Blob Spawn Egg");
 		addItem(ModItems.PRIMORDIAL_HUNGRY_FLESH_BLOB_SPAWN_EGG, "Primordial Hungry Flesh Blob Spawn Egg");
+		addItem(ModItems.FLESH_COW_SPAWN_EGG, "Flesh Cow Spawn Egg");
+		addItem(ModItems.FLESH_SHEEP_SPAWN_EGG, "Flesh Sheep Spawn Egg");
+		addItem(ModItems.FLESH_PIG_SPAWN_EGG, "Flesh Pig Spawn Egg");
+		addItem(ModItems.FLESH_CHICKEN_SPAWN_EGG, "Flesh Chicken Spawn Egg");
+		addItem(ModItems.CHROMA_SHEEP_SPAWN_EGG, "Chroma Sheep Spawn Egg");
+		addItem(ModItems.THICK_FUR_SHEEP_SPAWN_EGG, "Thick Fur Sheep Spawn Egg");
 	}
 
 	private void addBlockTranslations() {
@@ -538,15 +568,18 @@ public class EnglishLangProvider extends AbstractLangProvider {
 
 		addBlock(ModBlocks.FLESHKIN_CHEST, "Fleshkin Chest", """
 				Crafted from living flesh, the organic composition of the chest grants it remarkable resilience, ensuring the safety of its precious contents even from explosions.
-								
-				Only its true master can unlock its contents without invoking the wrath of its razor-sharp fangs.""");
+				Only its true master can unlock its contents without invoking the wrath of its razor-sharp fangs.
+				
+				You can add new Users by applying Tier 3 Essence to the block.
+				""");
 		//		addBlock(ModBlocks.FLESHKIN_DOOR, "[WIP] Fleshkin Door", EMPTY_STRING);
 		//		addBlock(ModBlocks.FLESHKIN_TRAPDOOR, "[WIP] Fleshkin Trap Door", EMPTY_STRING);
 		addBlock(ModBlocks.FLESHKIN_PRESSURE_PLATE, "Fleshkin Pressure Sensor", """
 				Fleshkin pancake. Yummy...
 				It has two behaviors, either it only activates for its owner or it only works for everyone else.
-								
-				Sneak click to change its behavior.""");
+				Sneak click to change its behavior.
+				
+				You can add new Users by applying Tier 3 Essence to the block.""");
 
 		addBlock(ModBlocks.FLESH, "Flesh Block", "A generic block of flesh... Don't bother me with this!");
 		addBlock(ModBlocks.FLESH_SLAB, "Flesh Slab", "A generic slab of flesh... Don't bother me with this!");
@@ -556,9 +589,12 @@ public class EnglishLangProvider extends AbstractLangProvider {
 		addBlock(ModBlocks.PACKED_FLESH_SLAB, "Packed Flesh Slab", "Tenacious Slab of flesh. Is it tough enough?");
 		addBlock(ModBlocks.PACKED_FLESH_STAIRS, "Packed Flesh Stairs", "Stairs made of tenacious flesh. Is it tough enough?");
 		addBlock(ModBlocks.PACKED_FLESH_WALL, "Packed Flesh Wall", "Tenacious wall of flesh.");
+		addBlock(ModBlocks.FIBROUS_FLESH, "Fibrous Flesh Block", "A unusual block flesh made from the innards of someone.");
+		addBlock(ModBlocks.FIBROUS_FLESH_SLAB, "Fibrous Flesh Slab", "A unusual slab of flesh made from the innards of someone.");
+		addBlock(ModBlocks.FIBROUS_FLESH_STAIRS, "Fibrous Flesh Stairs", "Stairs made of unusual flesh made from the innards of someone.");
+		addBlock(ModBlocks.FIBROUS_FLESH_WALL, "Fibrous Flesh Wall", "A unusual wall of flesh made from the innards of someone.");
 
 		addBlock(ModBlocks.FLESH_PILLAR, "Flesh Pillar", "A Pillar made of bones and flesh.");
-		addBlock(ModBlocks.FIBROUS_FLESH, "Fibrous Flesh Block", "A unusual block flesh made from the innards of someone.");
 		addBlock(ModBlocks.CHISELED_FLESH, "Chiseled Flesh Block", "A regal block of flesh... I'm most delighted");
 		addBlock(ModBlocks.ORNATE_FLESH, "Ornamental Flesh Block", "A set of regal teeth and flesh.");
 		addBlock(ModBlocks.ORNATE_FLESH_SLAB, "Ornamental Flesh Slab", "An incomplete set of regal teeth and flesh.");
@@ -603,6 +639,13 @@ public class EnglishLangProvider extends AbstractLangProvider {
 						
 				You can also use automation like Hoppers to insert and extract the Mob Essence.
 				""");
+		add(TextComponentUtil.getItemTooltipKey(ModBlocks.MODULAR_LARYNX.get()) + ".1", "When Placed on Soul Sand or Soil:");
+		add(TextComponentUtil.getItemTooltipKey(ModBlocks.MODULAR_LARYNX.get()) + ".2", "Use Death Sound");
+		add(TextComponentUtil.getItemTooltipKey(ModBlocks.MODULAR_LARYNX.get()) + ".3", "When Placed on Magma:");
+		add(TextComponentUtil.getItemTooltipKey(ModBlocks.MODULAR_LARYNX.get()) + ".4", "Use Hurt Sound");
+		add(TextComponentUtil.getItemTooltipKey(ModBlocks.MODULAR_LARYNX.get()) + ".5", "When Placed on Other:");
+		add(TextComponentUtil.getItemTooltipKey(ModBlocks.MODULAR_LARYNX.get()) + ".6", "Use Ambient Sound");
+
 		//addBlock(ModBlocks.NEURAL_INTERCEPTOR, "Neural Interceptor", "A psychic node that prevents natural mob spawning in a 48 block radius.");
 
 		addBlock(ModBlocks.PRIMAL_FLESH, "Primal Flesh Block", "Primitive and pure, you better not touch this with your dirty mitts.");
@@ -624,9 +667,11 @@ public class EnglishLangProvider extends AbstractLangProvider {
 		addBlock(ModBlocks.MALIGNANT_FLESH_VEINS, "Malignant Flesh Veins", "They look almost feral...\nyou better not touch them.");
 		addBlock(ModBlocks.PRIMAL_BLOOM, "Primal Bloom", "An exotic flower of primordial beauty.\n\nIt will spread itself by launching it's ripe berry into the air.\nOn impact the berry explodes and spreads malignant veins as well.");
 
-		addBlock(ModBlocks.PRIMAL_ORIFICE, "Primal Orifice", "A primitive piece full of holes that seems to generate and leak acidic juices.\nIt can be milked with buckets and bottles.");
+		addBlock(ModBlocks.PRIMAL_ORIFICE, "Primal Orifice", "A grotesque, flesh mass riddled with holes, oozing gastric juices. These orifices appear to grow inside flesh mound chambers and can be harvested using buckets or bottles, yielding a highly acidic fluid.");
 		addBlock(ModBlocks.ACID_FLUID_BLOCK, "Gastric Acid");
-	}
+
+		addBlock(ModBlocks.ACID_CAULDRON,"Gastric Acid Cauldron");
+	}   
 
 	private void addEntityTranslations() {
 		addEntityType(ModEntityTypes.HUNGRY_FLESH_BLOB, "Hungry Flesh Blob");
@@ -634,6 +679,12 @@ public class EnglishLangProvider extends AbstractLangProvider {
 		addEntityType(ModEntityTypes.LEGACY_FLESH_BLOB, "Legacy Flesh Blob");
 		addEntityType(ModEntityTypes.PRIMORDIAL_FLESH_BLOB, "Primordial Flesh Blob");
 		addEntityType(ModEntityTypes.PRIMORDIAL_HUNGRY_FLESH_BLOB, "Primordial Hungry Flesh Blob");
+		addEntityType(ModEntityTypes.FLESH_COW, "Flesh Cow");
+		addEntityType(ModEntityTypes.FLESH_SHEEP, "Flesh Sheep");
+		addEntityType(ModEntityTypes.FLESH_PIG, "Flesh Pig");
+		addEntityType(ModEntityTypes.FLESH_CHICKEN, "Flesh Chicken");
+		addEntityType(ModEntityTypes.CHROMA_SHEEP, "Chroma Sheep");
+		addEntityType(ModEntityTypes.THICK_FUR_SHEEP, "Thick Fur Sheep");
 	}
 
 	private void addFluidTranslations() {

@@ -85,6 +85,18 @@ public final class ModSoundEvents {
 	public static final RegistryObject<SoundEvent> FLESH_BLOB_AMBIENT = register("entity.flesh_blob.ambient");
 	public static final RegistryObject<SoundEvent> FLESH_BLOB_MEW_PURR = register("entity.flesh_blob.mew_purr");
 	public static final RegistryObject<SoundEvent> FLESH_BLOB_GROWL = register("entity.flesh_blob.growl");
+	public static final RegistryObject<SoundEvent> FLESH_COW_AMBIENT = register("entity.flesh_cow.ambient");
+	public static final RegistryObject<SoundEvent> FLESH_COW_HURT = register("entity.flesh_cow.hurt");
+	public static final RegistryObject<SoundEvent> FLESH_COW_DEATH = register("entity.flesh_cow.death");
+	public static final RegistryObject<SoundEvent> FLESH_SHEEP_AMBIENT = register("entity.flesh_sheep.ambient");
+	public static final RegistryObject<SoundEvent> FLESH_SHEEP_HURT = register("entity.flesh_sheep.hurt");
+	public static final RegistryObject<SoundEvent> FLESH_SHEEP_DEATH = register("entity.flesh_sheep.death");
+	public static final RegistryObject<SoundEvent> FLESH_PIG_AMBIENT = register("entity.flesh_pig.ambient");
+	public static final RegistryObject<SoundEvent> FLESH_PIG_HURT = register("entity.flesh_pig.hurt");
+	public static final RegistryObject<SoundEvent> FLESH_PIG_DEATH = register("entity.flesh_pig.death");
+	public static final RegistryObject<SoundEvent> FLESH_CHICKEN_AMBIENT = register("entity.flesh_chicken.ambient");
+	public static final RegistryObject<SoundEvent> FLESH_CHICKEN_HURT = register("entity.flesh_chicken.hurt");
+	public static final RegistryObject<SoundEvent> FLESH_CHICKEN_DEATH = register("entity.flesh_chicken.death");
 
 	private ModSoundEvents() {}
 

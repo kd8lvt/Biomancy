@@ -2,11 +2,9 @@ package com.github.elenterius.biomancy.block.veins;
 
 import com.github.elenterius.biomancy.block.bloom.BloomBlock;
 import com.github.elenterius.biomancy.block.cradle.PrimalEnergyHandler;
-import com.github.elenterius.biomancy.init.ModBlockProperties;
-import com.github.elenterius.biomancy.init.ModBlocks;
-import com.github.elenterius.biomancy.init.ModFluids;
-import com.github.elenterius.biomancy.init.ModSoundEvents;
+import com.github.elenterius.biomancy.init.*;
 import com.github.elenterius.biomancy.init.tags.ModBlockTags;
+import com.github.elenterius.biomancy.init.tags.ModItemTags;
 import com.github.elenterius.biomancy.util.ArrayUtil;
 import com.github.elenterius.biomancy.util.Bit32Set;
 import com.github.elenterius.biomancy.util.EnhancedIntegerProperty;
@@ -52,7 +50,6 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.function.Predicate;
 
 public class FleshVeinsBlock extends MultifaceBlock implements SimpleWaterloggedBlock {
@@ -63,7 +60,7 @@ public class FleshVeinsBlock extends MultifaceBlock implements SimpleWaterlogged
 	private final MultifaceSpreader spreader = new MultifaceSpreader(new MalignantFleshSpreaderConfig(this));
 
 	public FleshVeinsBlock(Properties properties) {
-		super(properties.randomTicks());
+		super(properties.randomTicks().ignitedByLava());
 		registerDefaultState(defaultBlockState().setValue(WATERLOGGED, false).setValue(CHARGE.get(), CHARGE.getMin()));
 	}
 
@@ -491,24 +488,28 @@ public class FleshVeinsBlock extends MultifaceBlock implements SimpleWaterlogged
 			if (charge >= CHARGE.getMax()) return;
 
 			ItemStack stack = itemEntity.getItem();
+			if (stack.is(ModItems.LIVING_FLESH.get())) return;
 
-			if (stack.isEdible()) {
-				int nutrition = Optional.ofNullable(stack.getFoodProperties(null))
-						.filter(FoodProperties::isMeat)
-						.map(FoodProperties::getNutrition).orElse(0);
-				if (nutrition <= 0) return;
+			int nutrition = getRawMeatNutrition(stack);
+			if (nutrition <= 0) return;
 
-				Vec3 motion = new Vec3((level.random.nextFloat() - 0.5d) * 0.1d, level.random.nextFloat() * 0.1d + 0.15d, (level.random.nextFloat() - 0.5d) * 0.1d);
-				((ServerLevel) level).sendParticles(new ItemParticleOption(ParticleTypes.ITEM, stack), itemEntity.getX(), itemEntity.getY(), itemEntity.getZ(), 8, motion.x, motion.y, motion.z, 0.05f);
+			int optimalAmount = Mth.ceil((CHARGE.getMax() - (float) charge) / nutrition);
+			int amount = Math.min(stack.getCount(), optimalAmount);
+			stack.shrink(amount);
+			charge += amount * nutrition;
+			setCharge(level, pos, state, charge);
 
-				int optimalAmount = Mth.ceil((CHARGE.getMax() - (float) charge) / nutrition);
-				int amount = Math.min(stack.getCount(), optimalAmount);
-				stack.shrink(amount);
-				charge += amount * nutrition;
-				setCharge(level, pos, state, charge);
-				level.playSound(null, pos, ModSoundEvents.DECOMPOSER_EAT.get(), SoundSource.BLOCKS, 0.6f, 0.15f + level.random.nextFloat() * 0.5f);
-			}
+			Vec3 motion = new Vec3((level.random.nextFloat() - 0.5d) * 0.1d, level.random.nextFloat() * 0.1d + 0.15d, (level.random.nextFloat() - 0.5d) * 0.1d);
+			((ServerLevel) level).sendParticles(new ItemParticleOption(ParticleTypes.ITEM, stack), itemEntity.getX(), itemEntity.getY(), itemEntity.getZ(), 8, motion.x, motion.y, motion.z, 0.05f);
+
+			level.playSound(null, pos, ModSoundEvents.DECOMPOSER_EAT.get(), SoundSource.BLOCKS, 0.6f, 0.15f + level.random.nextFloat() * 0.5f);
 		}
+	}
+
+	static int getRawMeatNutrition(ItemStack itemStack) {
+		if (!itemStack.isEdible()) return 0;
+		FoodProperties food = itemStack.getFoodProperties(null);
+		return food != null && food.isMeat() && itemStack.is(ModItemTags.RAW_MEATS) ? food.getNutrition() : 0;
 	}
 
 	@Override
@@ -650,4 +651,15 @@ public class FleshVeinsBlock extends MultifaceBlock implements SimpleWaterlogged
 	public MultifaceSpreader getSpreader() {
 		return spreader;
 	}
+
+	@Override
+	public int getFlammability(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
+		return Boolean.TRUE.equals(state.getValue(WATERLOGGED)) ? 0 : 100;
+	}
+
+	@Override
+	public int getFireSpreadSpeed(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
+		return Boolean.TRUE.equals(state.getValue(WATERLOGGED)) ? 0 : 15;
+	}
+
 }

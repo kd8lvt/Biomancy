@@ -166,10 +166,10 @@ public class VanillaRecipeProvider extends RecipeProvider {
 
 		WorkbenchRecipeBuilder.shapeless(RecipeCategory.MISC, Items.GUNPOWDER)
 				.requires(Items.CHARCOAL)
-				.requires(ModItems.EXOTIC_DUST.get(), 4)
-				.requires(Items.BLAZE_POWDER, 2)
-				.unlockedBy(hasName(ModItems.EXOTIC_DUST.get()), has(ModItems.EXOTIC_DUST.get()))
-				.save(consumer, getConversionRecipeId(Items.GUNPOWDER, ModItems.EXOTIC_DUST.get()));
+				.requires(ModItems.UNSTABLE_COMPOUND.get())
+				.requires(Items.BLAZE_POWDER)
+				.unlockedBy(hasName(ModItems.UNSTABLE_COMPOUND.get()), has(ModItems.UNSTABLE_COMPOUND.get()))
+				.save(consumer, getConversionRecipeId(Items.GUNPOWDER, ModItems.UNSTABLE_COMPOUND.get()));
 
 		WorkbenchRecipeBuilder.shaped(RecipeCategory.DECORATIONS, Items.GLOW_ITEM_FRAME)
 				.define('F', Items.ITEM_FRAME)
@@ -204,6 +204,13 @@ public class VanillaRecipeProvider extends RecipeProvider {
 		stonecutting(consumer, ModItems.PACKED_FLESH_STAIRS.get(), ModItems.PACKED_FLESH_BLOCK.get());
 		stonecutting(consumer, ModItems.PACKED_FLESH_SLAB.get(), ModItems.PACKED_FLESH_BLOCK.get(), 2);
 		stonecutting(consumer, ModItems.PACKED_FLESH_WALL.get(), ModItems.PACKED_FLESH_BLOCK.get());
+
+		stairs(consumer, ModItems.FIBROUS_FLESH_STAIRS.get(), ModItems.FIBROUS_FLESH_BLOCK.get());
+		slab(consumer, ModItems.FIBROUS_FLESH_SLAB.get(), ModItems.FIBROUS_FLESH_BLOCK.get());
+		wall(consumer, ModItems.FIBROUS_FLESH_WALL.get(), ModItems.FIBROUS_FLESH_BLOCK.get());
+		stonecutting(consumer, ModItems.FIBROUS_FLESH_STAIRS.get(), ModItems.FIBROUS_FLESH_BLOCK.get());
+		stonecutting(consumer, ModItems.FIBROUS_FLESH_SLAB.get(), ModItems.FIBROUS_FLESH_BLOCK.get(), 2);
+		stonecutting(consumer, ModItems.FIBROUS_FLESH_WALL.get(), ModItems.FIBROUS_FLESH_BLOCK.get());
 
 		slab(consumer, ModItems.ORNATE_FLESH_SLAB.get(), ModItems.ORNATE_FLESH_BLOCK.get());
 		blockFromSlabs(consumer, ModItems.ORNATE_FLESH_BLOCK.get(), ModItems.ORNATE_FLESH_SLAB.get());
@@ -257,6 +264,15 @@ public class VanillaRecipeProvider extends RecipeProvider {
 				.pattern("VFV")
 				.pattern("VVV")
 				.unlockedBy(hasName(ModItems.MALIGNANT_FLESH_VEINS.get()), has(ModItems.MALIGNANT_FLESH_VEINS.get()))
+				.save(consumer);
+
+		WorkbenchRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.PRIMAL_FLESH_BLOCK.get())
+				.define('F', ModItems.FLESH_BITS.get())
+				.define('V', ModItems.MALIGNANT_FLESH_BLOCK.get())
+				.pattern("VVV")
+				.pattern("VFV")
+				.pattern("VVV")
+				.unlockedBy(hasName(ModItems.MALIGNANT_FLESH_BLOCK.get()), has(ModItems.MALIGNANT_FLESH_BLOCK.get()))
 				.save(consumer);
 
 		WorkbenchRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModItems.PRIMORDIAL_BIO_LANTERN.get())

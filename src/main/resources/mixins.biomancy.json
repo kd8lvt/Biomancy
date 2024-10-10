@@ -8,13 +8,17 @@
     "defaultRequire": 1
   },
   "mixins": [
-    "AgeableMobAccessor", "AreaEffectCloudMixin", "ArmorStandAccessor", "ArrowMixin", "BiomeAccessor", "DamageSourceAccessor", "EntityAccessor",
-    "IntegerPropertyAccessor", "LivingEntityAccessor", "LivingEntityMixin", "MobEffectInstanceAccessor", "MobEffectInstanceMixin", "MobEntityAccessor",
-    "PhantomMixin", "PlayerMixin", "ServerLevelAccessor", "ServerLevelMixin", "SlimeAccessor", "SuspiciousStewItemAccessor", "SwordItemMixinAccessor",
-    "TadpoleAccessor", "TextureSlotAccessor", "ThrownPotionMixin", "UnbreakingEnchantmentMixin", "WallBlockMixin", "ZombieVillagerMixinAccessor"
+    "AnimalMixin", "AreaEffectCloudMixin", "ArrowMixin", "BlockMixin", "ChickenMixin", "CowMixin", "FlowingFluidMixin", "LivingEntityMixin",
+    "MobEffectInstanceMixin", "NodeEvaluatorMixin", "PhantomMixin", "PigMixin", "PlayerMixin", "ServerGamePacketListenerImplMixin", "ServerLevelMixin",
+    "SheepMixin", "SignBlockEntityMixin", "ThrownPotionMixin", "UnbreakingEnchantmentMixin", "VillagerMakeLoveMixin", "VillagerMixin", "WallBlockMixin",
+    "accessor.AgeableMobAccessor", "accessor.ArmorStandAccessor", "accessor.BiomeAccessor", "accessor.CreeperAccessor", "accessor.DamageSourceAccessor",
+    "accessor.EntityAccessor", "accessor.IntegerPropertyAccessor", "accessor.LivingEntityAccessor", "accessor.MobEffectInstanceAccessor",
+    "accessor.MobEntityAccessor", "accessor.ServerLevelAccessor", "accessor.SheepAccessor", "accessor.SlimeAccessor", "accessor.SuspiciousStewItemAccessor",
+    "accessor.SwordItemMixinAccessor", "accessor.TadpoleAccessor", "accessor.TextureSlotAccessor", "accessor.ZombieVillagerMixinAccessor"
   ],
   "client": [
-    "client.ClientPackListenerMixin", "client.ClientRecipeBookMixin", "client.GuiGraphicsMixin", "client.PlayerRendererMixin", "client.RecipeCollectionAccessor"
+    "accessor.RecipeCollectionAccessor", "client.AbstractSignEditScreenMixin", "client.AnvilScreenMixin", "client.ClientPackListenerMixin",
+    "client.ClientRecipeBookMixin", "client.GuiGraphicsMixin", "client.PlayerRendererMixin"
   ],
   "server": [ ]
 }

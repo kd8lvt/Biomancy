@@ -1,6 +1,7 @@
 package com.github.elenterius.biomancy.event;
 
 import com.github.elenterius.biomancy.BiomancyMod;
+import com.github.elenterius.biomancy.item.ChrysalisBlockItem;
 import com.github.elenterius.biomancy.item.extractor.ExtractorItem;
 import com.github.elenterius.biomancy.item.injector.InjectorItem;
 import net.minecraft.world.InteractionResult;
@@ -18,12 +19,12 @@ public final class PlayerInteractHandler {
 
 	private PlayerInteractHandler() {}
 
-	@SubscribeEvent(receiveCanceled = false)
+	@SubscribeEvent
 	public static void onPlayerInteractWithEntity(final PlayerInteractEvent.EntityInteract event) {
 		ItemStack stack = event.getItemStack();
 		Item item = stack.getItem();
 
-		if (item instanceof ExtractorItem || item instanceof InjectorItem) {
+		if (item instanceof ExtractorItem || item instanceof InjectorItem || item instanceof ChrysalisBlockItem) {
 			Entity target = event.getTarget();
 
 			if (target instanceof PartEntity<?> partEntity) {

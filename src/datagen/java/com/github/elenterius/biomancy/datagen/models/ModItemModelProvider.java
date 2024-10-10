@@ -73,6 +73,7 @@ public class ModItemModelProvider extends ItemModelProvider {
 		serumItem(ModItems.ABSORPTION_BOOST);
 		serumItem(ModItems.CLEANSING_SERUM);
 		serumItem(ModItems.INSOMNIA_CURE);
+		serumItem(ModItems.FRENZY_SERUM);
 
 		serumItem(ModItems.ORGANIC_COMPOUND);
 		serumItem(ModItems.UNSTABLE_COMPOUND);
@@ -101,6 +102,7 @@ public class ModItemModelProvider extends ItemModelProvider {
 		basicItem(ModItems.FULL_FLESH_DOOR);
 		wallBlockItem(ModItems.FLESH_WALL);
 		wallBlockItem(ModItems.PACKED_FLESH_WALL);
+		wallBlockItem(ModItems.FIBROUS_FLESH_WALL);
 		wallBlockItem(ModItems.MALIGNANT_FLESH_WALL);
 		wallBlockItem(ModItems.PRIMAL_FLESH_WALL);
 		wallBlockItem(ModItems.SMOOTH_PRIMAL_FLESH_WALL);

@@ -1,5 +1,6 @@
 package com.github.elenterius.biomancy.entity.projectile;
 
+import com.github.elenterius.biomancy.block.cauldron.AcidCauldron;
 import com.github.elenterius.biomancy.block.veins.FleshVeinsBlock;
 import com.github.elenterius.biomancy.init.ModBlocks;
 import com.github.elenterius.biomancy.init.ModEntityTypes;
@@ -13,6 +14,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import software.bernie.geckolib.animatable.GeoEntity;
@@ -20,7 +22,7 @@ import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache
 import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class AcidBlobProjectile extends CorrosiveAcidProjectile implements GeoEntity {
+public class AcidBlobProjectile extends AcidSpitProjectile implements GeoEntity {
 
 	protected final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 	protected boolean canPlaceAcidFluid = true;
@@ -40,6 +42,10 @@ public class AcidBlobProjectile extends CorrosiveAcidProjectile implements GeoEn
 
 	public void setCanPlaceAcidFluid(boolean flag) {
 		canPlaceAcidFluid = flag;
+	}
+
+	public boolean canPlaceAcidFluid() {
+		return canPlaceAcidFluid;
 	}
 
 	@Override
@@ -62,6 +68,15 @@ public class AcidBlobProjectile extends CorrosiveAcidProjectile implements GeoEn
 		}
 
 		super.onHitBlock(result);
+	}
+
+	@Override
+	protected void onInsideBlock(BlockState state) {
+		if (!level().isClientSide && canPlaceAcidFluid) {
+			if (state.getBlock() == Blocks.CAULDRON || (state.getBlock() instanceof AcidCauldron cauldron && !cauldron.isFull(state))) {
+				level().setBlockAndUpdate(blockPosition(), ModBlocks.ACID_CAULDRON.get().defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 3));
+			}
+		}
 	}
 
 	private boolean placeAcidFluid(BlockHitResult result) {

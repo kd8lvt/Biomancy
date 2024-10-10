@@ -150,6 +150,12 @@ public class ModBlockLoot extends BlockLootSubProvider {
 				))));
 	}
 
+	protected LootTable.Builder drop(Item item) {
+		return LootTable.lootTable().withPool(LootPool.lootPool()
+				.setRolls(ConstantValue.exactly(1))
+				.add(applyExplosionDecay(item,LootItem.lootTableItem(item))));
+	}
+
 	@Override
 	protected void generate() {
 		LOGGER.info(logMarker, "registering block loot...");
@@ -178,8 +184,12 @@ public class ModBlockLoot extends BlockLootSubProvider {
 		dropSelf(ModBlocks.PACKED_FLESH_STAIRS.get());
 		dropSelf(ModBlocks.PACKED_FLESH_WALL.get());
 
-		dropSelf(ModBlocks.FLESH_PILLAR.get());
 		dropSelf(ModBlocks.FIBROUS_FLESH.get());
+		add(ModBlocks.FIBROUS_FLESH_SLAB.get(), this::createDirectionalSlabTable);
+		dropSelf(ModBlocks.FIBROUS_FLESH_STAIRS.get());
+		dropSelf(ModBlocks.FIBROUS_FLESH_WALL.get());
+
+		dropSelf(ModBlocks.FLESH_PILLAR.get());
 		dropSelf(ModBlocks.CHISELED_FLESH.get());
 		dropSelf(ModBlocks.ORNATE_FLESH.get());
 		add(ModBlocks.ORNATE_FLESH_SLAB.get(), this::createDirectionalSlabTable);
@@ -240,6 +250,7 @@ public class ModBlockLoot extends BlockLootSubProvider {
 		addCustom(ModBlocks.FLESH_SPIKE.get(), this::createFleshSpikeTable);
 
 		add(ModBlocks.ACID_FLUID_BLOCK.get(), noDrop());
+		add(ModBlocks.ACID_CAULDRON.get(), drop(Items.CAULDRON));
 	}
 
 	protected <T extends Block> void addCustom(T block, Function<T, LootTable.Builder> function) {

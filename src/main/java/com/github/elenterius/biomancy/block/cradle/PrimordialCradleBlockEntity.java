@@ -21,7 +21,6 @@ import com.google.common.math.IntMath;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
@@ -122,15 +121,27 @@ public class PrimordialCradleBlockEntity extends SimpleSyncedBlockEntity impleme
 			sendParticlesToClient(level, pos, ParticleTypes.ANGRY_VILLAGER, particleCount);
 		}
 		else if (tribute.successModifier() > 0) {
-			int particleCount = level.random.nextInt(6, 9);
-			SimpleParticleType particleType = ParticleTypes.HAPPY_VILLAGER;
-			sendParticlesToClient(level, pos, particleType, particleCount);
+			int n = Mth.clamp(Math.round(tribute.lifeEnergy() / 100f) * 8, 1, 8);
+			int particleCount = level.random.nextInt(n, n + 2);
+			sendParticlesToClient(level, pos, ModParticleTypes.LIGHT_GREEN_GLOW.get(), particleCount);
 		}
 
 		if (tribute.lifeEnergy() > 0) {
-			int n = Mth.clamp(Math.round(tribute.lifeEnergy() / 100f) * 5, 1, 5);
+			int n = Mth.clamp(Math.round(tribute.lifeEnergy() / 100f) * 8, 1, 8);
+			int particleCount = level.random.nextInt(n, n + 2);
+			sendParticlesToClient(level, pos, ModParticleTypes.PINK_GLOW.get(), particleCount);
+		}
+
+		if (tribute.anomalyModifier() > 0) {
+			int n = Mth.clamp(Math.round(tribute.anomalyModifier() / 100f) * 5, 1, 5);
 			int particleCount = level.random.nextInt(n, n + 4);
-			sendParticlesToClient(level, pos, ParticleTypes.GLOW, particleCount);
+			sendParticlesToClient(level, pos, ModParticleTypes.BIOHAZARD.get(), particleCount);
+		}
+
+		if (tribute.hostileModifier() > 0) {
+			int n = Mth.clamp(Math.round(tribute.hostileModifier() / 100f) * 5, 1, 5);
+			int particleCount = level.random.nextInt(n, n + 4);
+			sendParticlesToClient(level, pos, ModParticleTypes.HOSTILE.get(), particleCount);
 		}
 
 		if (tribute.diseaseModifier() > 0) {
@@ -141,7 +152,7 @@ public class PrimordialCradleBlockEntity extends SimpleSyncedBlockEntity impleme
 	}
 
 	private void sendParticlesToClient(ServerLevel level, BlockPos pos, ParticleOptions particleOptions, int particleCount) {
-		level.sendParticles(particleOptions, pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d, particleCount, 0.5d, 0.25d, 0.5d, 0);
+		level.sendParticles(particleOptions, pos.getX() + 0.5d, pos.getY() + 0.8d, pos.getZ() + 0.5d, particleCount, 0.25d, 0.25d, 0.25d, 0);
 	}
 
 	public boolean isFull() {
@@ -154,6 +165,22 @@ public class PrimordialCradleBlockEntity extends SimpleSyncedBlockEntity impleme
 
 	public float getLifeEnergyPct() {
 		return sacrificeHandler.getLifeEnergyPct();
+	}
+
+	public float getSuccessChance() {
+		return sacrificeHandler.getSuccessChance();
+	}
+
+	public float getHostileChance() {
+		return sacrificeHandler.getHostileChance();
+	}
+
+	public float getAnomalyChance() {
+		return sacrificeHandler.getAnomalyChance();
+	}
+
+	public float getDiseaseChance() {
+		return sacrificeHandler.getTumorFactor();
 	}
 
 	public boolean hasModifiers() {
@@ -390,7 +417,8 @@ public class PrimordialCradleBlockEntity extends SimpleSyncedBlockEntity impleme
 
 	@Override
 	protected void saveForSyncToClient(CompoundTag tag) {
-		tag.put(SACRIFICE_SYNC_KEY, sacrificeHandler.serializeNBT());
+		//		tag.put(SACRIFICE_SYNC_KEY, sacrificeHandler.serializeNBT());
+		tag.put(SACRIFICE_KEY, sacrificeHandler.serializeNBT());
 	}
 
 	@Override
@@ -399,9 +427,9 @@ public class PrimordialCradleBlockEntity extends SimpleSyncedBlockEntity impleme
 		if (tag.contains(SACRIFICE_KEY)) {
 			sacrificeHandler.deserializeNBT(tag.getCompound(SACRIFICE_KEY));
 		}
-		else if (tag.contains(SACRIFICE_SYNC_KEY)) {
-			sacrificeHandler.deserializeNBT(tag.getCompound(SACRIFICE_SYNC_KEY));
-		}
+		//		else if (tag.contains(SACRIFICE_SYNC_KEY)) {
+		//			sacrificeHandler.deserializeNBT(tag.getCompound(SACRIFICE_SYNC_KEY));
+		//		}
 
 		primalEnergy = tag.getInt(PRIMAL_ENERGY_KEY);
 

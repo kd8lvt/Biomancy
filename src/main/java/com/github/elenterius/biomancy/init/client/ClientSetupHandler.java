@@ -8,6 +8,7 @@ import com.github.elenterius.biomancy.client.gui.tooltip.EmptyLineClientComponen
 import com.github.elenterius.biomancy.client.gui.tooltip.HrTooltipClientComponent;
 import com.github.elenterius.biomancy.client.gui.tooltip.StorageSacTooltipClientComponent;
 import com.github.elenterius.biomancy.client.particle.BloodDripParticle;
+import com.github.elenterius.biomancy.client.particle.CustomGlowParticle;
 import com.github.elenterius.biomancy.client.particle.ParticleProviders;
 import com.github.elenterius.biomancy.client.render.block.bioforge.BioForgeRenderer;
 import com.github.elenterius.biomancy.client.render.block.biolab.BioLabRenderer;
@@ -18,9 +19,15 @@ import com.github.elenterius.biomancy.client.render.block.fleshkinchest.Fleshkin
 import com.github.elenterius.biomancy.client.render.block.mawhopper.MawHopperRenderer;
 import com.github.elenterius.biomancy.client.render.block.storagesac.StorageSacRenderer;
 import com.github.elenterius.biomancy.client.render.block.tongue.TongueRenderer;
+import com.github.elenterius.biomancy.client.render.entity.mob.FleshChickenRenderer;
+import com.github.elenterius.biomancy.client.render.entity.mob.FleshCowRenderer;
+import com.github.elenterius.biomancy.client.render.entity.mob.FleshPigRenderer;
+import com.github.elenterius.biomancy.client.render.entity.mob.FleshSheepRenderer;
 import com.github.elenterius.biomancy.client.render.entity.mob.fleshblob.FleshBlobRenderer;
 import com.github.elenterius.biomancy.client.render.entity.mob.fleshblob.LegacyFleshBlobRenderer;
 import com.github.elenterius.biomancy.client.render.entity.mob.fleshblob.PrimordialFleshBlobRenderer;
+import com.github.elenterius.biomancy.client.render.entity.mob.sheep.ChromaSheepRenderer;
+import com.github.elenterius.biomancy.client.render.entity.mob.sheep.ThickFurSheepRenderer;
 import com.github.elenterius.biomancy.client.render.entity.projectile.AcidProjectileRenderer;
 import com.github.elenterius.biomancy.client.render.entity.projectile.acidblob.AcidBlobProjectileRenderer;
 import com.github.elenterius.biomancy.client.render.entity.projectile.bloomberry.BloomberryProjectileRenderer;
@@ -30,6 +37,7 @@ import com.github.elenterius.biomancy.item.weapon.gun.GunbladeItem;
 import com.github.elenterius.biomancy.tooltip.EmptyLineTooltipComponent;
 import com.github.elenterius.biomancy.tooltip.HrTooltipComponent;
 import com.github.elenterius.biomancy.tooltip.StorageSacTooltipComponent;
+import com.github.elenterius.biomancy.util.TransliterationUtil;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.particle.AttackSweepParticle;
@@ -71,6 +79,8 @@ public final class ClientSetupHandler {
 
 		event.enqueueWork(ClientSetupHandler::onPostSetup);
 
+		TransliterationUtil.init();
+
 		ModsCompatHandler.onBiomancyClientSetup(event);
 	}
 
@@ -100,6 +110,12 @@ public final class ClientSetupHandler {
 		event.registerEntityRenderer(ModEntityTypes.LEGACY_FLESH_BLOB.get(), LegacyFleshBlobRenderer::new);
 		event.registerEntityRenderer(ModEntityTypes.PRIMORDIAL_FLESH_BLOB.get(), PrimordialFleshBlobRenderer::new);
 		event.registerEntityRenderer(ModEntityTypes.PRIMORDIAL_HUNGRY_FLESH_BLOB.get(), PrimordialFleshBlobRenderer::new);
+		event.registerEntityRenderer(ModEntityTypes.FLESH_COW.get(), FleshCowRenderer::new);
+		event.registerEntityRenderer(ModEntityTypes.FLESH_SHEEP.get(), FleshSheepRenderer::new);
+		event.registerEntityRenderer(ModEntityTypes.FLESH_PIG.get(), FleshPigRenderer::new);
+		event.registerEntityRenderer(ModEntityTypes.FLESH_CHICKEN.get(), FleshChickenRenderer::new);
+		event.registerEntityRenderer(ModEntityTypes.CHROMA_SHEEP.get(), ChromaSheepRenderer::new);
+		event.registerEntityRenderer(ModEntityTypes.THICK_FUR_SHEEP.get(), ThickFurSheepRenderer::new);
 
 		event.registerEntityRenderer(ModEntityTypes.CORROSIVE_ACID_PROJECTILE.get(), AcidProjectileRenderer::new);
 		event.registerEntityRenderer(ModEntityTypes.TOOTH_PROJECTILE.get(), ThrownItemRenderer::new);
@@ -129,6 +145,10 @@ public final class ClientSetupHandler {
 		event.registerSpriteSet(ModParticleTypes.DRIPPING_ACID.get(), ParticleProviders.AcidHangProvider::new);
 		event.registerSpriteSet(ModParticleTypes.FALLING_ACID.get(), ParticleProviders.AcidFallProvider::new);
 		event.registerSpriteSet(ModParticleTypes.LANDING_ACID.get(), ParticleProviders.AcidLandProvider::new);
+		event.registerSpriteSet(ModParticleTypes.PINK_GLOW.get(), sprites -> new CustomGlowParticle.TwoColorProvider(sprites, 0xf740fd, 0xff6fff));
+		event.registerSpriteSet(ModParticleTypes.LIGHT_GREEN_GLOW.get(), sprites -> new CustomGlowParticle.TwoColorProvider(sprites, 0x53ff53, 0x64e986));
+		event.registerSpriteSet(ModParticleTypes.HOSTILE.get(), CustomGlowParticle.GenericProvider::new);
+		event.registerSpriteSet(ModParticleTypes.BIOHAZARD.get(), sprites -> new CustomGlowParticle.TwoColorProvider(sprites, 0xab274f, 0x7e2a43));
 	}
 
 	@SubscribeEvent
@@ -163,6 +183,7 @@ public final class ClientSetupHandler {
 	public static void onBlockColorRegistry(final RegisterColorHandlersEvent.Block event) {
 		event.register(VialHolderBlock::getTintColor, ModBlocks.VIAL_HOLDER.get());
 		event.register(BiometricMembraneBlock::getTintColor, ModBlocks.BIOMETRIC_MEMBRANE.get());
+		event.register((state, level, pos, tintIndex) -> tintIndex == 0 ? ModFluids.ACID_TYPE.get().getTintColor() : 0xFF_FFFFFF, ModBlocks.ACID_CAULDRON.get());
 	}
 
 	@SubscribeEvent
@@ -170,6 +191,7 @@ public final class ClientSetupHandler {
 		event.registerAbove(VanillaGuiOverlay.CROSSHAIR.id(), "injector", IngameOverlays.INJECTOR_OVERLAY);
 		event.registerAbove(VanillaGuiOverlay.CROSSHAIR.id(), "charge_bar", IngameOverlays.CHARGE_BAR_OVERLAY);
 		event.registerAbove(VanillaGuiOverlay.CROSSHAIR.id(), "gun", IngameOverlays.GUN_OVERLAY);
+		event.registerAbove(VanillaGuiOverlay.CROSSHAIR.id(), "knowledge", IngameOverlays.KNOWLEDGE_OVERLAY);
 	}
 
 	@SubscribeEvent
